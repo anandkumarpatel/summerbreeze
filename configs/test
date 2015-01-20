@@ -1,0 +1,2 @@
+MONGO="mongodb://localhost/test"
+PORT="8080"
