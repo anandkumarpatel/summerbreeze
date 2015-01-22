@@ -8,61 +8,18 @@ var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var it = lab.test;
 
-var request = require('request');
 var createCount = require('callback-count');
 
 var app = require('../lib/app.js');
 var mongo = require('../lib/helpers/mongo.js');
+var R = require('./rooms-fixtures.js');
 
-var testRoom = {
-  number: 1,
-  smoking: false,
-  beds: 1,
-  status: 'ok',
-  comment: 'upstairs'
-};
-
-function postRoom (info, cb) {
-  request({
-    method: 'POST',
-    url: 'http://localhost:' + process.env.PORT + '/rooms',
-    json: info
-  }, cb);
-}
-
-function createBasicRoom (cb) {
-  postRoom(testRoom, function(err, res, body) {
-    if (err) {
-      return cb(err);
-    }
-    expect(res.statusCode).to.equal(200);
-    expect(body).to.contain(testRoom);
-    cb(null, body);
-  });
-}
-
-function getRoom (query, cb) {
-  request({
-    method: 'GET',
-    url: 'http://localhost:' + process.env.PORT + '/rooms',
-    qs: query
-  }, cb);
-}
-
-function deleteRoom (id, cb) {
-  request({
-    method: 'DELETE',
-    url: 'http://localhost:' + process.env.PORT + '/rooms/'+id,
-  }, cb);
-}
-
-function patchRoom (id, info, cb) {
-  request({
-    method: 'PATCH',
-    url: 'http://localhost:' + process.env.PORT + '/rooms/'+id,
-    json: info
-  }, cb);
-}
+var testRoom = R.testRoom;
+var postRoom = R.postRoom;
+var createBasicRoom = R.createBasicRoom;
+var getRoom = R.getRoom;
+var deleteRoom = R.deleteRoom;
+var patchRoom = R.patchRoom;
 
 describe('Rooms', function() {
   beforeEach(function(done) {
@@ -88,7 +45,9 @@ describe('Rooms', function() {
     describe('invalid', function() {
       it('should not allow room with same number', function(done) {
         createBasicRoom(function(err) {
-          if (err) { return done(err); }
+          if (err) {
+            return done(err);
+          }
           postRoom(testRoom, function(err, res, body) {
             if (err) {
               return done(err);
@@ -143,7 +102,9 @@ describe('Rooms', function() {
         getRoom({
           number: 1
         }, function(err, res, body) {
-          if (err) { return done(err); }
+          if (err) {
+            return done(err);
+          }
           body = JSON.parse(body);
           expect(body).to.have.length(1);
           expect(body[0]).to.deep.include(testRoom);
@@ -154,7 +115,9 @@ describe('Rooms', function() {
         getRoom({
           smoking: true
         }, function(err, res, body) {
-          if (err) { return done(err); }
+          if (err) {
+            return done(err);
+          }
           body = JSON.parse(body);
           body = body.filter(function(item) {
             delete item.__v;
@@ -171,7 +134,9 @@ describe('Rooms', function() {
         getRoom({
           status: 'ok'
         }, function(err, res, body) {
-          if (err) { return done(err); }
+          if (err) {
+            return done(err);
+          }
           body = JSON.parse(body);
           body = body.filter(function(item) {
             delete item.__v;
@@ -189,7 +154,9 @@ describe('Rooms', function() {
           status: 'ok',
           beds: 2
         }, function(err, res, body) {
-          if (err) { return done(err); }
+          if (err) {
+            return done(err);
+          }
           body = JSON.parse(body);
           body = body.filter(function(item) {
             delete item.__v;
@@ -203,7 +170,9 @@ describe('Rooms', function() {
       });
       it('should get all rooms if no query passed', function(done) {
         getRoom({}, function(err, res, body) {
-          if (err) { return done(err); }
+          if (err) {
+            return done(err);
+          }
           body = JSON.parse(body);
           body = body.filter(function(item) {
             delete item.__v;
@@ -221,7 +190,9 @@ describe('Rooms', function() {
         getRoom({
           room: 3
         }, function(err, res, body) {
-          if (err) { return done(err); }
+          if (err) {
+            return done(err);
+          }
           body = JSON.parse(body);
           expect(body).to.be.empty();
           done();
@@ -234,12 +205,20 @@ describe('Rooms', function() {
     describe('valid', function() {
       it('should delete room', function(done) {
         createBasicRoom(function(err, room) {
-          if (err) { return done(err); }
+          if (err) {
+            return done(err);
+          }
           deleteRoom(room._id, function(err, res) {
-            if (err) { return done(err); }
+            if (err) {
+              return done(err);
+            }
             expect(res.statusCode).to.equal(200);
-            getRoom({number: testRoom.number}, function(err, res, body) {
-              if (err) { return done(err); }
+            getRoom({
+              number: testRoom.number
+            }, function(err, res, body) {
+              if (err) {
+                return done(err);
+              }
               body = JSON.parse(body);
               expect(body).to.be.empty();
               done();
@@ -249,12 +228,18 @@ describe('Rooms', function() {
       });
       it('should do nothing if no id found', function(done) {
         createBasicRoom(function(err, room) {
-          if (err) { return done(err); }
+          if (err) {
+            return done(err);
+          }
           deleteRoom(room._id, function(err, res) {
-            if (err) { return done(err); }
+            if (err) {
+              return done(err);
+            }
             expect(res.statusCode).to.equal(200);
             deleteRoom(room._id, function(err, res) {
-              if (err) { return done(err); }
+              if (err) {
+                return done(err);
+              }
               expect(res.statusCode).to.equal(200);
               done();
             });
@@ -265,7 +250,9 @@ describe('Rooms', function() {
     describe('invalid', function() {
       it('should error if no id sent', function(done) {
         deleteRoom('', function(err, res) {
-          if (err) { return done(err); }
+          if (err) {
+            return done(err);
+          }
           expect(res.statusCode).to.equal(404);
           done();
         });
@@ -275,23 +262,32 @@ describe('Rooms', function() {
   describe('PATCH /room/:id', function() {
     describe('valid', function() {
       var testVals = {
-        'number': 421 ,
-        'smoking': true ,
-        'beds': 5 ,
-        'status': 'cool' ,
+        'number': 421,
+        'smoking': true,
+        'beds': 5,
+        'status': 'cool',
         'comment': 'something'
       };
-      function testUpdates (key) {
-        return function (done) {
+
+      function testUpdates(key) {
+        return function(done) {
           createBasicRoom(function(err, room) {
-            if (err) { return done(err); }
+            if (err) {
+              return done(err);
+            }
             var update = {};
             update[key] = testVals[key];
             patchRoom(room._id, update, function(err, res) {
-              if (err) { return done(err); }
+              if (err) {
+                return done(err);
+              }
               expect(res.statusCode).to.equal(200);
-              getRoom({_id: room._id}, function(err, res, body) {
-                if (err) { return done(err); }
+              getRoom({
+                _id: room._id
+              }, function(err, res, body) {
+                if (err) {
+                  return done(err);
+                }
                 body = JSON.parse(body);
                 expect(body).to.have.length(1);
                 expect(body[0][key]).to.equal(testVals[key]);
@@ -306,12 +302,20 @@ describe('Rooms', function() {
       }
       it('should update all', function(done) {
         createBasicRoom(function(err, room) {
-          if (err) { return done(err); }
+          if (err) {
+            return done(err);
+          }
           patchRoom(room._id, testVals, function(err, res) {
-            if (err) { return done(err); }
+            if (err) {
+              return done(err);
+            }
             expect(res.statusCode).to.equal(200);
-            getRoom({_id: room._id}, function(err, res, body) {
-              if (err) { return done(err); }
+            getRoom({
+              _id: room._id
+            }, function(err, res, body) {
+              if (err) {
+                return done(err);
+              }
               body = JSON.parse(body);
               expect(body).to.have.length(1);
               expect(body[0]).to.deep.include(testVals);
