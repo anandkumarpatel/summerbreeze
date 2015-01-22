@@ -8,95 +8,23 @@ var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var it = lab.test;
 
-var request = require('request');
-
 var app = require('../lib/app.js');
 var mongo = require('../lib/helpers/mongo.js');
 
 var guests = require('./guests-fixtures.js');
-
-function stripeTime(date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
-function addDays(date, days) {
-  return new Date(date.getTime() + days*24*60*60*1000);
-}
-var C = process.env.C_RESERVATION;
-var testReservationLength = 5;
-var testRate = 123.41;
-
-function expectReservationMatch(a,b) {
-  expect(a.checkIn).to.equal(b.checkIn);
-  expect(a.checkOut).to.equal(b.checkOut);
-  expect(a.rate).to.equal(b.rate);
-  expect(a.paymentType).to.equal(b.paymentType);
-  expect(a.status).to.equal(b.status);
-  expect(a.comment).to.equal(b.comment);
-  expect(a.guests).to.deep.contain(b.guests);
-}
-
-function expectArrayToContainReservation (array, a) {
-  array.forEach(function(item) {
-    if (item._id === a._id) {
-      expectReservationMatch(item, a);
-    }
-  });
-}
-
-var testReservationData = {
-  checkIn: stripeTime(new Date()).getTime(),
-  checkOut: stripeTime(addDays(new Date(), testReservationLength)).getTime(),
-  rate: testRate,
-  paymentType: C.paymentType.cash,
-  status: C.status.notIn,
-  comment: 'late checking'
-};
-
-function postReservation (info, cb) {
-  request({
-    method: 'POST',
-    url: 'http://localhost:' + process.env.PORT + '/Reservations',
-    json: info
-  }, cb);
-}
-
-function createBasicReservation (guests, cb) {
-  testReservationData.guests = [guests._id];
-  postReservation(testReservationData, function(err, res, body) {
-    if (err) {
-      return cb(err);
-    }
-    expect(res.statusCode).to.equal(200);
-    expect(body).to.deep.contain(testReservationData);
-    testReservationData = body;
-    testReservationData.guests = guests;
-    cb(null, body);
-  });
-}
-
-function getReservation (query, cb) {
-  request({
-    method: 'GET',
-    url: 'http://localhost:' + process.env.PORT + '/Reservations',
-    qs: query
-  }, cb);
-}
-
-function deleteReservation (id, cb) {
-  request({
-    method: 'DELETE',
-    url: 'http://localhost:' + process.env.PORT + '/Reservations/'+id,
-  }, cb);
-}
-
-function patchReservation (id, info, cb) {
-  request({
-    method: 'PATCH',
-    url: 'http://localhost:' + process.env.PORT + '/Reservations/'+id,
-    json: info
-  }, cb);
-}
+var R = require('./reservations-fixtures.js');
+var stripeTime = R.stripeTime;
+var addDays = R.addDays;
+var expectArrayToContainReservation = R.expectArrayToContainReservation;
+var postReservation = R.postReservation;
+var createBasicReservation = R.createBasicReservation;
+var getReservation = R.getReservation;
+var deleteReservation = R.deleteReservation;
+var patchReservation = R.patchReservation;
+var C = R.C;
+var testReservationLength = R.testReservationLength;
+var testRate = R.testRate;
+var testReservationData = R.testReservationData;
 
 describe('Reservations', function() {
   var ctx = {};
