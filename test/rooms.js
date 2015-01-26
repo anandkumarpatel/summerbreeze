@@ -22,15 +22,9 @@ var deleteRoom = R.deleteRoom;
 var patchRoom = R.patchRoom;
 
 describe('Rooms', function() {
-  beforeEach(function(done) {
-    app.start(done);
-  });
-  beforeEach(function(done) {
-    mongo.dropDatabase(done);
-  });
-  afterEach(function(done) {
-    app.stop(done);
-  });
+  beforeEach(app.start);
+  beforeEach(mongo.dropDatabase);
+  afterEach(app.stop);
   describe('POST /rooms', function() {
     describe('valid', function() {
       it('should create room', createBasicRoom);

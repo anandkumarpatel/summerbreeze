@@ -1,7 +1,6 @@
 'use strict';
 require('../lib/loadConfig.js');
 var expect = require('code').expect;
-var chance = require('chance').Chance();
 var request = require('request');
 
 var C = process.env.C_RESERVATION;
@@ -49,7 +48,11 @@ function postReservation (info, cb) {
     method: 'POST',
     url: 'http://localhost:' + process.env.PORT + '/Reservations',
     json: info
-  }, cb);
+  }, function(err, res, body) {
+    if (err) { return cb(err); }
+    delete body.timeLastEdit;
+    cb(null, res, body);
+  });
 }
 
 function createBasicReservation (guests, cb) {
