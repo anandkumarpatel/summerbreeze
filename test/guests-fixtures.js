@@ -3,7 +3,6 @@ require('../lib/loadConfig.js');
 var expect = require('code').expect;
 var chance = require('chance').Chance();
 
-
 var request = require('request');
 var testGuest = {
   firstName: 'anand',

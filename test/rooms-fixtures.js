@@ -1,7 +1,7 @@
 'use strict';
 require('../lib/loadConfig.js');
 var expect = require('code').expect;
-
+var chance = require('chance').Chance();
 var request = require('request');
 
 var testRoom = {
@@ -22,6 +22,24 @@ function postRoom(info, cb) {
 
 function createBasicRoom(cb) {
   var data = JSON.parse(JSON.stringify(testRoom));
+  postRoom(data, function(err, res, body) {
+    if (err) {
+      return cb(err);
+    }
+    expect(res.statusCode).to.equal(200);
+    expect(body).to.contain(data);
+    cb(null, body);
+  });
+}
+
+function createRandomRoom(number, cb) {
+  var data = {
+    number: number,
+    smoking: chance.bool(),
+    beds: chance.integer({min: 1, max: 2}),
+    status: 'ok',
+    comment: chance.string()
+  };
   postRoom(data, function(err, res, body) {
     if (err) {
       return cb(err);
@@ -58,6 +76,7 @@ function patchRoom(id, info, cb) {
 module.exports.testRoom = testRoom;
 module.exports.postRoom = postRoom;
 module.exports.createBasicRoom = createBasicRoom;
+module.exports.createRandomRoom = createRandomRoom;
 module.exports.getRoom = getRoom;
 module.exports.deleteRoom = deleteRoom;
 module.exports.patchRoom = patchRoom;
