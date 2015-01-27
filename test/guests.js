@@ -15,7 +15,7 @@ var mongo = require('../lib/helpers/mongo.js');
 
 // fixtures
 var f = require('./guests-fixtures.js');
-var testGuest = f.testGuest;
+var getTestData = f.getTestData;
 var postGuest = f.postGuest;
 var createBasicGuest = f.createBasicGuest;
 var getGuest = f.getGuest;
@@ -37,7 +37,7 @@ describe('Guests', function() {
       it('should create guest', createBasicGuest);
       it('should create 2 guests with different name', function(done) {
         var count = createCount(2, done);
-        var guest2 = JSON.parse(JSON.stringify(testGuest));
+        var guest2 = JSON.parse(JSON.stringify(getTestData()));
         guest2.firstName = 'nancy';
         createBasicGuest(count.next);
         postGuest(guest2, count.next);
@@ -46,7 +46,7 @@ describe('Guests', function() {
     describe('invalid', function() {
       ['firstName','lastName','address','dateOfBirth','idNumber'].forEach(function(key) {
         it('should error if missing ' + key, function(done) {
-          var info = JSON.parse(JSON.stringify(testGuest));
+          var info = JSON.parse(JSON.stringify(getTestData()));
           delete info[key];
           postGuest(info, function(err, res, body) {
             if (err) {
@@ -93,7 +93,7 @@ describe('Guests', function() {
           if (err) { return done(err); }
           body = JSON.parse(body);
           expect(body).to.have.length(1);
-          expect(body[0]).to.deep.include(testGuest);
+          expect(body[0]).to.deep.include(getTestData());
           done();
         });
       });
@@ -109,7 +109,7 @@ describe('Guests', function() {
             return item;
           });
           expect(body).to.have.length(2);
-          expect(body).to.deep.contain(testGuest);
+          expect(body).to.deep.contain(getTestData());
           expect(body).to.deep.contain(guest2);
           done();
         });
@@ -208,7 +208,7 @@ describe('Guests', function() {
           expect(body).to.have.length(3);
           expect(body).to.deep.contain(guest2);
           expect(body).to.deep.contain(guest3);
-          expect(body).to.deep.contain(testGuest);
+          expect(body).to.deep.contain(getTestData());
           done();
         });
       });
@@ -233,7 +233,7 @@ describe('Guests', function() {
           deleteGuest(guest._id, function(err, res) {
             if (err) { return done(err); }
             expect(res.statusCode).to.equal(200);
-            getGuest({number: testGuest.number}, function(err, res, body) {
+            getGuest({number: getTestData().number}, function(err, res, body) {
               if (err) { return done(err); }
               body = JSON.parse(body);
               expect(body).to.be.empty();

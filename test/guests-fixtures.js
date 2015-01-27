@@ -13,6 +13,10 @@ var testGuest = {
   comment: 'good guy'
 };
 
+function getTestData() {
+  return JSON.parse(JSON.stringify(testGuest));
+}
+
 function postGuest (info, cb) {
   request({
     method: 'POST',
@@ -22,12 +26,13 @@ function postGuest (info, cb) {
 }
 
 function createBasicGuest (cb) {
-  postGuest(testGuest, function(err, res, body) {
+  var data = getTestData();
+  postGuest(data, function(err, res, body) {
     if (err) {
       return cb(err);
     }
     expect(res.statusCode).to.equal(200);
-    expect(body).to.contain(testGuest);
+    expect(body).to.contain(data);
     cb(null, body);
   });
 }
@@ -74,7 +79,7 @@ function patchGuest (id, info, cb) {
   }, cb);
 }
 
-module.exports.testGuest = testGuest;
+module.exports.getTestData = getTestData;
 module.exports.postGuest = postGuest;
 module.exports.createBasicGuest = createBasicGuest;
 module.exports.getGuest = getGuest;
