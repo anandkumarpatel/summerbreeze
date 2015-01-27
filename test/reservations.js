@@ -10,6 +10,7 @@ var it = lab.test;
 
 var app = require('../lib/app.js');
 var mongo = require('../lib/helpers/mongo.js');
+var Reservations = require('../lib/models/reservations/class.js');
 
 var guests = require('./guests-fixtures.js');
 var rooms = require('./rooms-fixtures.js');
@@ -25,7 +26,6 @@ var patchReservation = R.patchReservation;
 var C = R.C;
 var testReservationLength = R.testReservationLength;
 var testRate = R.testRate;
-
 describe('Reservations', function() {
   var ctx = {};
   beforeEach(function(done) {
@@ -95,10 +95,32 @@ describe('Reservations', function() {
             postReservation(data, function(err, res, body) {
               expect(res.statusCode).to.equal(409);
               expect(body.output.payload.message).to.equal('no more rooms avalible');
-              done();
+              Reservations.find({}, function(err, body) {
+                if (err) { return done(err); }
+                expect(body.length).to.equal(1);
+                done();
+              });
             });
           });
         });
+        it('should error if rooms already reserved', function(done) {
+          var data = R.getTestData();
+          data.guests = [ctx.guest._id];
+          data.rooms = [ctx.room._id];
+          postReservation(data, function(err) {
+            if (err) { return done(err); }
+            postReservation(data, function(err, res, body) {
+              expect(res.statusCode).to.equal(409);
+              expect(body.output.payload.message).to.equal('room already reserved');
+              Reservations.find({}, function(err, body) {
+                if (err) { return done(err); }
+                expect(body.length).to.equal(1);
+                done();
+              });
+            });
+          });
+       });
+       it('should error if no more rooms avalible and a room is specified');
       });
     }); // invalid
   }); // POST /Reservations
