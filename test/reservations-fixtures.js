@@ -16,6 +16,10 @@ var testReservationData = {
   comment: 'late checking'
 };
 
+function getTestData() {
+  return JSON.parse(JSON.stringify(testReservationData));
+}
+
 function stripeTime(date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
@@ -56,7 +60,7 @@ function postReservation (info, cb) {
 }
 
 function createBasicReservation (guests, cb) {
-  var data = JSON.parse(JSON.stringify(testReservationData));
+  var data = getTestData();
   data.guests = [guests._id];
   postReservation(data, function(err, res, body) {
     if (err) {
@@ -104,4 +108,4 @@ module.exports.patchReservation = patchReservation;
 module.exports.C = C;
 module.exports.testReservationLength = testReservationLength;
 module.exports.testRate = testRate;
-module.exports.testReservationData = testReservationData;
+module.exports.getTestData = getTestData;

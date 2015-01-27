@@ -25,10 +25,6 @@ var patchReservation = R.patchReservation;
 var C = R.C;
 var testReservationLength = R.testReservationLength;
 var testRate = R.testRate;
-function getTestData() {
-  return JSON.parse(JSON.stringify(R.testReservationData));
-}
-var testReservationData = JSON.parse(JSON.stringify(R.testReservationData));
 
 describe('Reservations', function() {
   var ctx = {};
@@ -65,7 +61,7 @@ describe('Reservations', function() {
         createBasicReservation(ctx.guest, done);
       });
       it('should create reservation with room', function(done) {
-        var data = JSON.parse(JSON.stringify(R.testReservationData));
+        var data = R.getTestData();
         data.rooms = [ctx.room._id];
         data.guests = [ctx.guest._id];
         postReservation(data, done);
@@ -75,7 +71,7 @@ describe('Reservations', function() {
       describe('missing keys', function() {
         ['checkIn', 'checkOut', 'rate', 'paymentType', 'status'].forEach(function(key) {
           it('should error if missing ' + key, function(done) {
-            var info = JSON.parse(JSON.stringify(testReservationData));
+            var info = R.getTestData();
             delete info[key];
             info.guests = [ctx.guest._id];
             postReservation(info, function(err, res, body) {
@@ -94,7 +90,7 @@ describe('Reservations', function() {
         it('should error if no rooms left and no room specified', function(done) {
           createBasicReservation(ctx.guest, function(err) {
             if (err) { return done(err); }
-            var data = getTestData();
+            var data = R.getTestData();
             data.guests = [ctx.guest._id];
             postReservation(data, function(err, res, body) {
               expect(res.statusCode).to.equal(409);
@@ -192,7 +188,7 @@ describe('Reservations', function() {
           if (err) { return done(err); }
           body = JSON.parse(body);
           expect(body).to.have.length(2);
-          expectArrayToContainReservation(body, testReservationData);
+          expectArrayToContainReservation(body, R.getTestData());
           expectArrayToContainReservation(body, ctx.reservation2);
           done();
         });
@@ -221,7 +217,7 @@ describe('Reservations', function() {
           deleteReservation(Reservation._id, function(err, res) {
             if (err) { return done(err); }
             expect(res.statusCode).to.equal(200);
-            getReservation({number: testReservationData.number}, function(err, res, body) {
+            getReservation({number: R.getTestData().number}, function(err, res, body) {
               if (err) { return done(err); }
               body = JSON.parse(body);
               expect(body).to.be.empty();
