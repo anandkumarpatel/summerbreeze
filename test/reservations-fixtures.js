@@ -56,15 +56,14 @@ function postReservation (info, cb) {
 }
 
 function createBasicReservation (guests, cb) {
-  testReservationData.guests = [guests._id];
-  postReservation(testReservationData, function(err, res, body) {
+  var data = JSON.parse(JSON.stringify(testReservationData));
+  data.guests = [guests._id];
+  postReservation(data, function(err, res, body) {
     if (err) {
       return cb(err);
     }
     expect(res.statusCode).to.equal(200);
-    expect(body).to.deep.contain(testReservationData);
-    testReservationData = body;
-    testReservationData.guests = guests;
+    expect(body).to.deep.contain(data);
     cb(null, body);
   });
 }

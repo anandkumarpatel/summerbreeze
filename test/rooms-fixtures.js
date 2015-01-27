@@ -21,12 +21,13 @@ function postRoom(info, cb) {
 }
 
 function createBasicRoom(cb) {
-  postRoom(testRoom, function(err, res, body) {
+  var data = JSON.parse(JSON.stringify(testRoom));
+  postRoom(data, function(err, res, body) {
     if (err) {
       return cb(err);
     }
     expect(res.statusCode).to.equal(200);
-    expect(body).to.contain(testRoom);
+    expect(body).to.contain(data);
     cb(null, body);
   });
 }
