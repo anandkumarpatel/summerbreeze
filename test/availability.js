@@ -38,13 +38,7 @@ function createReservationForRange(ctx, name, checkIn, checkOut, cb) {
       return cb(err);
     }
     info.guests = [guest._id];
-    var testRoom = {
-      number: 1,
-      smoking: false,
-      beds: 1,
-      status: 'ok',
-      comment: 'upstairs'
-    };
+    var testRoom = Room.getTestData();
     testRoom.number = checkIn + checkOut * 10;
     Room.postRoom(testRoom, function(err, res, room) {
       if (err) {
@@ -76,13 +70,8 @@ function createReservationWith2Rooms(ctx, name, checkIn, checkOut, cb) {
       return cb(err);
     }
     info.guests = [guest._id];
-    var testRoom = {
-      number: 1234,
-      smoking: false,
-      beds: 1,
-      status: 'ok',
-      comment: 'upstairs'
-    };
+    var testRoom = Room.getTestData();
+    testRoom.number = 1234;
     Room.postRoom(testRoom, function(err, res, room1) {
       if (err) {
         return cb(err);

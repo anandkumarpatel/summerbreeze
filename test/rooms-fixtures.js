@@ -12,6 +12,10 @@ var testRoom = {
   comment: 'upstairs'
 };
 
+function getTestData() {
+  return JSON.parse(JSON.stringify(testRoom));
+}
+
 function postRoom(info, cb) {
   request({
     method: 'POST',
@@ -21,7 +25,7 @@ function postRoom(info, cb) {
 }
 
 function createBasicRoom(cb) {
-  var data = JSON.parse(JSON.stringify(testRoom));
+  var data = getTestData();
   postRoom(data, function(err, res, body) {
     if (err) {
       return cb(err);
@@ -73,7 +77,7 @@ function patchRoom(id, info, cb) {
   }, cb);
 }
 
-module.exports.testRoom = testRoom;
+module.exports.getTestData = getTestData;
 module.exports.postRoom = postRoom;
 module.exports.createBasicRoom = createBasicRoom;
 module.exports.createRandomRoom = createRandomRoom;

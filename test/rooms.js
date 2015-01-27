@@ -14,7 +14,6 @@ var app = require('../lib/app.js');
 var mongo = require('../lib/helpers/mongo.js');
 var R = require('./rooms-fixtures.js');
 
-var testRoom = R.testRoom;
 var postRoom = R.postRoom;
 var createBasicRoom = R.createBasicRoom;
 var getRoom = R.getRoom;
@@ -30,7 +29,7 @@ describe('Rooms', function() {
       it('should create room', createBasicRoom);
       it('should create 2 rooms with different numbers', function(done) {
         var count = createCount(2, done);
-        var room2 = JSON.parse(JSON.stringify(testRoom));
+        var room2 = JSON.parse(JSON.stringify(R.getTestData()));
         room2.number = 2;
         createBasicRoom(count.next);
         postRoom(room2, count.next);
@@ -42,7 +41,7 @@ describe('Rooms', function() {
           if (err) {
             return done(err);
           }
-          postRoom(testRoom, function(err, res, body) {
+          postRoom(R.getTestData(), function(err, res, body) {
             if (err) {
               return done(err);
             }
@@ -54,7 +53,7 @@ describe('Rooms', function() {
       });
       ['number', 'smoking', 'beds', 'status'].forEach(function(key) {
         it('should error if missing ' + key, function(done) {
-          var info = JSON.parse(JSON.stringify(testRoom));
+          var info = JSON.parse(JSON.stringify(R.getTestData()));
           delete info[key];
           postRoom(info, function(err, res, body) {
             if (err) {
@@ -101,7 +100,7 @@ describe('Rooms', function() {
           }
           body = JSON.parse(body);
           expect(body).to.have.length(1);
-          expect(body[0]).to.deep.include(testRoom);
+          expect(body[0]).to.deep.include(R.getTestData());
           done();
         });
       });
@@ -139,7 +138,7 @@ describe('Rooms', function() {
           });
           expect(body).to.have.length(2);
           expect(body).to.deep.contain(room2);
-          expect(body).to.deep.contain(testRoom);
+          expect(body).to.deep.contain(R.getTestData());
           done();
         });
       });
@@ -176,7 +175,7 @@ describe('Rooms', function() {
           expect(body).to.have.length(3);
           expect(body).to.deep.contain(room2);
           expect(body).to.deep.contain(room10);
-          expect(body).to.deep.contain(testRoom);
+          expect(body).to.deep.contain(R.getTestData());
           done();
         });
       });
@@ -208,7 +207,7 @@ describe('Rooms', function() {
             }
             expect(res.statusCode).to.equal(200);
             getRoom({
-              number: testRoom.number
+              number: R.getTestData().number
             }, function(err, res, body) {
               if (err) {
                 return done(err);
