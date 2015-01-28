@@ -79,7 +79,36 @@ describe('Reservations', function() {
           });
         });
       });
-      describe('no room', function() {
+      it('should error if guest does not exist', function(done) {
+        var data = R.getTestData();
+        data.guests = [new mongoose.Types.ObjectId()];
+
+        R.postReservation(data, function(err, res, body) {
+          expect(res.statusCode).to.equal(400);
+          expect(body.output.payload.message).to.equal('guest not found');
+          Reservations.find({}, function(err, body) {
+            if (err) { return done(err); }
+            expect(body.length).to.equal(0);
+            done();
+          });
+        });
+      });
+      it('should error if guest invalid type', function(done) {
+        var data = R.getTestData();
+        data.guests = ['fake'];
+
+        R.postReservation(data, function(err, res, body) {
+          expect(res.statusCode).to.equal(400);
+          expect(body.name).to.equal('CastError');
+          expect(body.path).to.equal('guests');
+          Reservations.find({}, function(err, body) {
+            if (err) { return done(err); }
+            expect(body.length).to.equal(0);
+            done();
+          });
+        });
+      });
+      describe('room errors', function() {
         it('should error if no rooms left and no room specified', function(done) {
           R.createBasicReservation(ctx.guest, function(err) {
             if (err) { return done(err); }
@@ -112,8 +141,38 @@ describe('Reservations', function() {
               });
             });
           });
-       });
-       it('should error if no more rooms avalible and a room is specified');
+        });
+        it('should error if room does not exist', function(done) {
+          var data = R.getTestData();
+          data.guests = [ctx.guest._id];
+          data.rooms = [new mongoose.Types.ObjectId()];
+
+          R.postReservation(data, function(err, res, body) {
+            expect(res.statusCode).to.equal(400);
+            expect(body.output.payload.message).to.equal('room not found');
+            Reservations.find({}, function(err, body) {
+              if (err) { return done(err); }
+              expect(body.length).to.equal(0);
+              done();
+            });
+          });
+        });
+        it('should error if room invalid type', function(done) {
+          var data = R.getTestData();
+          data.guests = [ctx.guest._id];
+          data.rooms = ['fake'];
+
+          R.postReservation(data, function(err, res, body) {
+            expect(res.statusCode).to.equal(400);
+            expect(body.name).to.equal('CastError');
+            expect(body.path).to.equal('rooms');
+            Reservations.find({}, function(err, body) {
+              if (err) { return done(err); }
+              expect(body.length).to.equal(0);
+              done();
+            });
+          });
+        });
       });
     }); // invalid
   }); // POST /Reservations
