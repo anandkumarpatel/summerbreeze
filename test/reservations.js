@@ -79,6 +79,23 @@ describe('Reservations', function() {
           });
         });
       });
+      it('should error if checkIn after checkOut', function(done) {
+        var data = R.getTestData();
+        data.guests = [ctx.guest._id];
+        data.checkIn = new Date('5/12/1016').getTime();
+        data.checkOut = new Date('1/10/1016').getTime();
+
+        R.postReservation(data, function(err, res, body) {
+          expect(res.statusCode).to.equal(400);
+          expect(body.output.payload.message)
+            .to.equal('checkOut date must be greater than checkIn date');
+          Reservations.find({}, function(err, body) {
+            if (err) { return done(err); }
+            expect(body.length).to.equal(0);
+            done();
+          });
+        });
+      });
       it('should error if guest does not exist', function(done) {
         var data = R.getTestData();
         data.guests = [new mongoose.Types.ObjectId()];
