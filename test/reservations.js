@@ -8,24 +8,16 @@ var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 var it = lab.test;
 
+var mongoose = require('mongoose');
+
 var app = require('../lib/app.js');
 var mongo = require('../lib/helpers/mongo.js');
 var Reservations = require('../lib/models/reservations/class.js');
-
 var guests = require('./guests-fixtures.js');
 var rooms = require('./rooms-fixtures.js');
+
 var R = require('./reservations-fixtures.js');
-var stripeTime = R.stripeTime;
-var addDays = R.addDays;
-var expectArrayToContainReservation = R.expectArrayToContainReservation;
-var postReservation = R.postReservation;
-var createBasicReservation = R.createBasicReservation;
-var getReservation = R.getReservation;
-var deleteReservation = R.deleteReservation;
-var patchReservation = R.patchReservation;
-var C = R.C;
-var testReservationLength = R.testReservationLength;
-var testRate = R.testRate;
+
 describe('Reservations', function() {
   var ctx = {};
   beforeEach(function(done) {
@@ -58,13 +50,13 @@ describe('Reservations', function() {
   describe('POST /Reservations', function() {
     describe('valid', function() {
       it('should create reservation without room', function(done) {
-        createBasicReservation(ctx.guest, done);
+        R.createBasicReservation(ctx.guest, done);
       });
       it('should create reservation with room', function(done) {
         var data = R.getTestData();
         data.rooms = [ctx.room._id];
         data.guests = [ctx.guest._id];
-        postReservation(data, done);
+        R.postReservation(data, done);
       });
     }); // valid
     describe('invalid', function() {
@@ -75,7 +67,7 @@ describe('Reservations', function() {
             var info = R.getTestData();
             delete info[key];
             info.guests = [ctx.guest._id];
-            postReservation(info, function(err, res, body) {
+            R.postReservation(info, function(err, res, body) {
               if (err) {
                 return done(err);
               }
@@ -89,11 +81,11 @@ describe('Reservations', function() {
       });
       describe('no room', function() {
         it('should error if no rooms left and no room specified', function(done) {
-          createBasicReservation(ctx.guest, function(err) {
+          R.createBasicReservation(ctx.guest, function(err) {
             if (err) { return done(err); }
             var data = R.getTestData();
             data.guests = [ctx.guest._id];
-            postReservation(data, function(err, res, body) {
+            R.postReservation(data, function(err, res, body) {
               expect(res.statusCode).to.equal(409);
               expect(body.output.payload.message).to.equal('no more rooms avalible');
               Reservations.find({}, function(err, body) {
@@ -108,9 +100,9 @@ describe('Reservations', function() {
           var data = R.getTestData();
           data.guests = [ctx.guest._id];
           data.rooms = [ctx.room._id];
-          postReservation(data, function(err) {
+          R.postReservation(data, function(err) {
             if (err) { return done(err); }
-            postReservation(data, function(err, res, body) {
+            R.postReservation(data, function(err, res, body) {
               expect(res.statusCode).to.equal(409);
               expect(body.output.payload.message).to.equal('room already reserved');
               Reservations.find({}, function(err, body) {
@@ -128,20 +120,20 @@ describe('Reservations', function() {
   describe('GET /Reservations', function() {
     describe('valid', function() {
       var r2 = {
-        checkIn: stripeTime(new Date()).getTime(),
-        checkOut: stripeTime(addDays(new Date(), testReservationLength)).getTime(),
-        rate: testRate,
-        paymentType: C.paymentType.creditCard,
-        status: C.status.notIn,
+        checkIn: R.stripeTime(new Date()).getTime(),
+        checkOut: R.stripeTime(R.addDays(new Date(), R.testReservationLength)).getTime(),
+        rate: R.testRate,
+        paymentType: R.C.paymentType.creditCard,
+        status: R.C.status.notIn,
         roomsRequested: 1,
         comment: 'dog'
       };
       var r3 = {
-        checkIn: stripeTime(addDays(new Date(), 1)).getTime(),
-        checkOut: stripeTime(addDays(new Date(), 6)).getTime(),
-        rate: testRate,
-        paymentType: C.paymentType.cash,
-        status: C.status.canceled,
+        checkIn: R.stripeTime(R.addDays(new Date(), 1)).getTime(),
+        checkOut: R.stripeTime(R.addDays(new Date(), 6)).getTime(),
+        rate: R.testRate,
+        paymentType: R.C.paymentType.cash,
+        status: R.C.status.canceled,
         roomsRequested: 1,
         comment: 'pet'
       };
@@ -161,7 +153,7 @@ describe('Reservations', function() {
         });
       });
       beforeEach(function(done) {
-        createBasicReservation(ctx.guest, done);
+        R.createBasicReservation(ctx.guest, done);
       });
       beforeEach(function(done) {
         guests.createRandomGuest(function(err, guest) {
@@ -180,7 +172,7 @@ describe('Reservations', function() {
         });
       });
       beforeEach(function(done) {
-        postReservation(r2, function(err, res, body) {
+        R.postReservation(r2, function(err, res, body) {
           if (err) { return done(err); }
           ctx.reservation2 = body;
           ctx.reservation2.guests = ctx.guest2;
@@ -188,7 +180,7 @@ describe('Reservations', function() {
         });
       });
       beforeEach(function(done) {
-        postReservation(r3, function(err, body) {
+        R.postReservation(r3, function(err, body) {
           if (err) { return done(err); }
           ctx.reservation3 = body;
           ctx.reservation3.guests = ctx.guest3;
@@ -196,37 +188,37 @@ describe('Reservations', function() {
         });
       });
       it('should get Reservation from paymentType', function(done) {
-        getReservation({
-          paymentType: C.paymentType.creditCard
+        R.getReservation({
+          paymentType: R.C.paymentType.creditCard
         }, function(err, res, body) {
           if (err) { return done(err); }
           body = JSON.parse(body);
           expect(body).to.have.length(1);
-          expectArrayToContainReservation(body, ctx.reservation2);
+          R.expectArrayToContainReservation(body, ctx.reservation2);
           done();
         });
       });
       it('should get Reservations from status', function(done) {
-        getReservation({
-          status: C.status.notIn
+        R.getReservation({
+          status: R.C.status.notIn
         }, function(err, res, body) {
           if (err) { return done(err); }
           body = JSON.parse(body);
           expect(body).to.have.length(2);
-          expectArrayToContainReservation(body, R.getTestData());
-          expectArrayToContainReservation(body, ctx.reservation2);
+          R.expectArrayToContainReservation(body, R.getTestData());
+          R.expectArrayToContainReservation(body, ctx.reservation2);
           done();
         });
       });
       describe('room with guest', function() {
         it('should get reservation by guest', function(done) {
-          getReservation({
+          R.getReservation({
             guests: ctx.guest2._id
           }, function(err, res, body) {
             if (err) { return done(err); }
             body = JSON.parse(body);
             expect(body).to.have.length(1);
-            expectArrayToContainReservation(body, ctx.reservation2);
+            R.expectArrayToContainReservation(body, ctx.reservation2);
             done();
           });
         });
@@ -237,12 +229,12 @@ describe('Reservations', function() {
   describe('DELETE /Reservation/:id', function() {
     describe('valid', function() {
       it('should delete Reservation', function(done) {
-        createBasicReservation(ctx.guest, function(err, Reservation) {
+        R.createBasicReservation(ctx.guest, function(err, Reservation) {
           if (err) { return done(err); }
-          deleteReservation(Reservation._id, function(err, res) {
+          R.deleteReservation(Reservation._id, function(err, res) {
             if (err) { return done(err); }
             expect(res.statusCode).to.equal(200);
-            getReservation({number: R.getTestData().number}, function(err, res, body) {
+            R.getReservation({number: R.getTestData().number}, function(err, res, body) {
               if (err) { return done(err); }
               body = JSON.parse(body);
               expect(body).to.be.empty();
@@ -252,12 +244,12 @@ describe('Reservations', function() {
         });
       });
       it('should do nothing if no id found', function(done) {
-        createBasicReservation(ctx.guest, function(err, Reservation) {
+        R.createBasicReservation(ctx.guest, function(err, Reservation) {
           if (err) { return done(err); }
-          deleteReservation(Reservation._id, function(err, res) {
+          R.deleteReservation(Reservation._id, function(err, res) {
             if (err) { return done(err); }
             expect(res.statusCode).to.equal(200);
-            deleteReservation(Reservation._id, function(err, res) {
+            R.deleteReservation(Reservation._id, function(err, res) {
               if (err) { return done(err); }
               expect(res.statusCode).to.equal(200);
               done();
@@ -268,7 +260,7 @@ describe('Reservations', function() {
     }); // valid
     describe('invalid', function() {
       it('should error if no id sent', function(done) {
-        deleteReservation('', function(err, res) {
+        R.deleteReservation('', function(err, res) {
           if (err) { return done(err); }
           expect(res.statusCode).to.equal(404);
           done();
@@ -280,23 +272,23 @@ describe('Reservations', function() {
     describe('valid', function() {
       var testVals = {
         'checkIn': new Date().getTime(),
-        'checkOut': stripeTime(addDays(new Date(), 9)).getTime(),
+        'checkOut': R.stripeTime(R.addDays(new Date(), 9)).getTime(),
         'rate': 5,
-        'paymentType': C.paymentType.creditCard,
+        'paymentType': R.C.paymentType.creditCard,
         'cardNumber': 2352463,
-        'status': C.status.checkOut,
+        'status': R.C.status.checkOut,
         'comment': 'something'
       };
       function testUpdates (key) {
         return function (done) {
-          createBasicReservation(ctx.guest, function(err, Reservation) {
+          R.createBasicReservation(ctx.guest, function(err, Reservation) {
             if (err) { return done(err); }
             var update = {};
             update[key] = testVals[key];
-            patchReservation(Reservation._id, update, function(err, res) {
+            R.patchReservation(Reservation._id, update, function(err, res) {
               if (err) { return done(err); }
               expect(res.statusCode).to.equal(200);
-              getReservation({_id: Reservation._id}, function(err, res, body) {
+              R.getReservation({_id: Reservation._id}, function(err, res, body) {
                 if (err) { return done(err); }
                 body = JSON.parse(body);
                 expect(body).to.have.length(1);
@@ -311,12 +303,12 @@ describe('Reservations', function() {
         it('should update ' + item, testUpdates(item));
       }
       it('should update all', function(done) {
-        createBasicReservation(ctx.guest, function(err, Reservation) {
+        R.createBasicReservation(ctx.guest, function(err, Reservation) {
           if (err) { return done(err); }
-          patchReservation(Reservation._id, testVals, function(err, res) {
+          R.patchReservation(Reservation._id, testVals, function(err, res) {
             if (err) { return done(err); }
             expect(res.statusCode).to.equal(200);
-            getReservation({_id: Reservation._id}, function(err, res, body) {
+            R.getReservation({_id: Reservation._id}, function(err, res, body) {
               if (err) { return done(err); }
               body = JSON.parse(body);
               expect(body).to.have.length(1);
