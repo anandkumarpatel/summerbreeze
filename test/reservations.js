@@ -69,7 +69,8 @@ describe('Reservations', function() {
     }); // valid
     describe('invalid', function() {
       describe('missing keys', function() {
-        ['checkIn', 'checkOut', 'rate', 'paymentType', 'status'].forEach(function(key) {
+        ['checkIn', 'checkOut', 'rate', 'paymentType', 'status', 'roomsRequested']
+          .forEach(function(key) {
           it('should error if missing ' + key, function(done) {
             var info = R.getTestData();
             delete info[key];
@@ -132,6 +133,7 @@ describe('Reservations', function() {
         rate: testRate,
         paymentType: C.paymentType.creditCard,
         status: C.status.notIn,
+        roomsRequested: 1,
         comment: 'dog'
       };
       var r3 = {
@@ -140,6 +142,7 @@ describe('Reservations', function() {
         rate: testRate,
         paymentType: C.paymentType.cash,
         status: C.status.canceled,
+        roomsRequested: 1,
         comment: 'pet'
       };
       beforeEach(function(done) {

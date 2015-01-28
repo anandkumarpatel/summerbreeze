@@ -31,7 +31,8 @@ function createReservationForRange(ctx, name, checkIn, checkOut, cb) {
     rate: 100,
     paymentType: R.C.paymentType.cash,
     status: R.C.status.notIn,
-    comment: 'late checking'
+    comment: 'late checking',
+    roomsRequested: 1
   };
   G.createRandomGuest(function(err, guest) {
     if (err) {
@@ -63,7 +64,8 @@ function createReservationWith2Rooms(ctx, name, checkIn, checkOut, cb) {
     rate: 100,
     paymentType: R.C.paymentType.cash,
     status: R.C.status.notIn,
-    comment: 'late checking'
+    comment: 'late checking',
+    roomsRequested: 1
   };
   G.createRandomGuest(function(err, guest) {
     if (err) {

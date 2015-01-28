@@ -13,6 +13,7 @@ var testReservationData = {
   rate: testRate,
   paymentType: C.paymentType.cash,
   status: C.status.notIn,
+  roomsRequested: 1,
   comment: 'late checking'
 };
 
@@ -31,6 +32,7 @@ function addDays(date, days) {
 function expectReservationMatch(a,b) {
   expect(a.checkIn).to.equal(b.checkIn);
   expect(a.checkOut).to.equal(b.checkOut);
+  expect(a.roomsRequested).to.equal(b.roomsRequested);
   expect(a.rate).to.equal(b.rate);
   expect(a.paymentType).to.equal(b.paymentType);
   expect(a.status).to.equal(b.status);
