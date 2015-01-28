@@ -269,7 +269,7 @@ describe('Reservations', function() {
           done();
         });
       });
-      describe('room with guest', function() {
+      describe('reservation with guest', function() {
         it('should get reservation by guest', function(done) {
           R.getReservation({
             guests: ctx.guest2._id
@@ -282,7 +282,19 @@ describe('Reservations', function() {
           });
         });
       });
-      it('should get reservation by room');
+      describe('reservation with room', function() {
+        it('should get reservation by room', function(done) {
+          R.getReservation({
+            rooms: ctx.room2._id
+          }, function(err, res, body) {
+            if (err) { return done(err); }
+            body = JSON.parse(body);
+            expect(body).to.have.length(1);
+            R.expectArrayToContainReservation(body, ctx.reservation2);
+            done();
+          });
+        });
+      });
     }); // valid
   }); // GET /Reservations
   describe('DELETE /Reservation/:id', function() {
