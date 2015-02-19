@@ -1,0 +1,38 @@
+<div layout="column" layout-align="center center">
+  <md-card class='normalCard'>
+    <md-content class="md-padding">
+      <form name="roomForm">
+        <div layout="row">
+          <div class="md-tile-content" flex>
+            <p>Room Number</p>
+            <h3>{{room.number}}</h3>
+          </div>
+          <div class="md-tile-content" flex>
+            <p>Smoking</p>
+            <md-checkbox ng-model="room.smoking"></md-checkbox>
+          </div>
+          <div class="md-tile-content" flex>
+            <p>beds: {{room.beds}}</p>
+            <md-radio-group ng-model="room.beds">
+              <md-radio-button ng-repeat="opt in beds" ng-value="opt"> {{opt | uppercase}} </md-radio-button>
+            </md-radio-group>
+          </div>
+          <div class="md-tile-content" flex>
+            <p>Status: {{room.status}}</p>
+            <md-radio-group ng-model="room.status">
+              <md-radio-button ng-repeat="opt in status" ng-value="opt"> {{opt | uppercase}} </md-radio-button>
+            </md-radio-group>
+          </div>
+        </div>
+        <div layout="row">
+          <md-input-container flex>
+            <label>Comment</label>
+            <input ng-model='room.comment' type='text'></input>
+          </md-input-container>
+        </div>
+      </form>
+    </md-content>
+  </md-card>
+  <md-button class="md-raised md-primary" ng-click="save(guest)">SAVE</md-button>
+</div>
+            // TODO: CHANGE UPPSERCASE TO FILTER

@@ -1,0 +1,51 @@
+<md-dialog aria-label="input guest">
+  <md-content>
+    <form name="guestForm">
+      <div layout="column">
+        <div layout="row">
+          <md-input-container flex>
+            <label>First Name</label>
+            <input type='text' ng-model="guest.firstName">
+          </md-input-container>
+          <md-input-container flex>
+            <label>Last Name</label>
+            <input type='text' ng-model="guest.lastName">
+          </md-input-container>
+        </div>
+        <div layout="row">
+          <md-input-container flex>
+            <label>Address</label>
+            <input type='text' ng-model="guest.address">
+          </md-input-container>
+          <md-input-container flex>
+            <label>City</label>
+            <input type='text' ng-model="guest.city">
+          </md-input-container>
+          <md-input-container flex>
+            <label>State</label>
+            <input type='text' ng-model="guest.state">
+          </md-input-container>
+          <md-input-container flex>
+            <label>Zip Code</label>
+            <input type='number' ng-model="guest.zip">
+          </md-input-container>
+        </div>
+        <div layout="row">
+          <md-input-container flex>
+            <label>dateOfBirth</label>
+            <input type="date" placeholder="" ng-model="guest.dateOfBirth">
+          </md-input-container>
+          <md-input-container flex>
+            <label>idNumber</label>
+            <input type='text' ng-model="guest.idNumber">
+          </md-input-container>
+        </div>
+        <md-input-container flex>
+          <label>comment</label>
+          <textarea type='text' ng-model="guest.comment"> </textarea>
+        </md-input-container>
+        <md-button class="md-raised md-primary" ng-click="save(guest)">SAVE</md-button>
+      </div>
+    </form>
+  </md-content>
+</md-dialog>

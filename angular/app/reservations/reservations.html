@@ -1,0 +1,52 @@
+<div layout="column"  layout-align="center center">
+  <md-card ng-repeat="reservation in reservations" ng-click="go(reservation._id)" class='normalCard'>
+    <md-content class="md-padding">
+    <div layout="row">
+      <div class="md-tile-content" flex>
+        <p>Check In Date</p>
+        <h3>{{reservation.checkIn | date:'medium'}}</h3>
+      </div>
+      <div class="md-tile-content" flex>
+        <p>Check Out Date</p>
+        <h3>{{reservation.checkOut | date:'medium'}} </h3>
+      </div>
+    </div>
+    <div layout="row">
+      <div class="md-tile-content" flex>
+        <p>Rate</p>
+        <h3>{{reservation.rate | currency:"USD$":0}}</h3>
+      </div>
+      <div class="md-tile-content" flex>
+        <p>Payment Type</p>
+        <h3>{{reservation.paymentType}}</h3>
+      </div>
+      <div class="md-tile-content" flex>
+        <p>Status</p>
+        <h3>{{reservation.status}}</h3>
+      </div>
+      <div class="md-tile-content" flex>
+        <p>Number Of Rooms Requested</p>
+        <h3>{{reservation.roomsRequested}}</h3>
+      </div>
+    </div>
+    <div layout="row">
+      <div class="md-tile-content" flex>
+        <p>Guest</p>
+        <label ng-repeat='guest in reservation.guests'>{{guest}}, </label>
+      </div>
+    </div>
+    <div>
+      <div class="md-tile-content" flex>
+        <p>Rooms</p>
+        <label ng-repeat='room in reservation.rooms'>{{room}}, </label>
+      </div>
+    </div>
+    <div layout="row">
+      <div class="md-tile-content" flex>
+        <p>Comments</p>
+        <h3>{{reservation.comment}}</h3>
+      </div>
+    </div>
+    </md-content>
+  </md-card>
+</div>

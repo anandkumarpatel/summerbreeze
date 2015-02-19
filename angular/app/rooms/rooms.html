@@ -1,0 +1,30 @@
+<div layout="column"  layout-align="center center">
+  <md-content class="md-padding">
+    <md-card ng-repeat="room in rooms" ng-click="go(room.number)" class='normalCard'>
+      <div layout="row">
+        <div class="md-tile-content" flex>
+          <p>Room Number</p>
+          <h3>{{room.number}}</h3>
+        </div>
+        <div class="md-tile-content" flex>
+          <p>Smoking?</p>
+          <h3>{{room.smoking}}</h3>
+        </div>
+        <div class="md-tile-content" flex>
+          <p>Beds</p>
+          <h3>{{room.beds}}</h3>
+        </div>
+        <div class="md-tile-content" flex>
+          <p>Status</p>
+          <h3>{{room.status}}</h3>
+        </div>
+      </div>
+      <div layout="row">
+        <div class="md-tile-content" flex>
+          <p>Comment</p>
+          <h3>{{room.comment}}asdf</h3>
+        </div>
+      </div>
+    </md-card>
+  </md-content>
+</div>
