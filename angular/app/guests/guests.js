@@ -41,13 +41,43 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
 }])
 
 .controller('GuestsNewCtrl',
+  ['$scope', '$routeParams', '$location', '$mdDialog', 'guests', 'guest','commitGuest',
+  function($scope, $routeParams, $location, $mdDialog, guests, guest, commitGuest) {
+    $scope.guest = guest;
+
+    if (!angular.isDefined($scope.guest)) {
+      $scope.guest = {};
+    }
+    $scope.save = function() {
+      if ($scope.guestForm.$valid) {
+        guests.saveById($scope.guest);
+        $mdDialog.hide($scope.guest);
+      }
+    };
+    $scope.search = function(ev) {
+      $mdDialog.show({
+        controller: 'GuestsSearchCtrl',
+        templateUrl: 'guests/dialog_list.html',
+        targetEvent: ev
+      }).then(function() {
+        commitGuest(ev);
+      }, function() {});
+    };
+    $scope.hide = function() {
+      $mdDialog.hide();
+    };
+    $scope.cancel = function() {
+      $mdDialog.cancel();
+    };
+}])
+
+.controller('GuestsSearchCtrl',
   ['$scope', '$routeParams', '$location', '$mdDialog', 'guests',
   function($scope, $routeParams, $location, $mdDialog, guests) {
-    $scope.guest = {};
+    $scope.guests = guests.getAll();
 
-    $scope.save = function(guest) {
-      if ($scope.guestForm.$valid) {
-        guests.saveById(guest);
+    $scope.select = function(guest) {
+      if (angular.isDefined(guest)) {
         $mdDialog.hide(guest);
       }
     };

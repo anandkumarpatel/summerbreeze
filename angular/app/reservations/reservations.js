@@ -36,24 +36,37 @@ angular.module('myApp.reservations', ['ngRoute'])
 .controller('ReservationNewCtrl',
   ['$scope', '$routeParams', '$location', '$mdDialog', 'reservations', 'moment',
   function($scope, $routeParams, $location, $mdDialog, reservations, moment) {
-    if (!angular.isDefined($scope.reservation)) {
-      $scope.reservation = {
-        checkIn: new Date(),
-        checkOut: null,
-        rate: 0,
-        paymentType: 1,
-        status: 2,
-        roomsRequested: 1,
-        comment: '',
-        guests: [],
-        rooms: [],
-        _id: 0
-      };
+    $scope.reservation = {
+      checkIn: new Date(),
+      checkOut: null,
+      rate: 0,
+      paymentType: 1,
+      status: 2,
+      roomsRequested: 1,
+      comment: '',
+      guests: [],
+      rooms: [],
+      _id: 0
+    };
+    function showAlert(ev, missing) {
+      $mdDialog.show(
+        $mdDialog.alert()
+        .title('you forgot something')
+        .content('please pick ' + missing + ' to continue')
+        .ok('continue')
+        .targetEvent(ev)
+      );
     }
-    $scope.save = function(reservation) {
+
+    $scope.save = function(ev) {
       if ($scope.reservationForm.$valid) {
-        reservation._id = Math.random();
-        reservations.create(angular.copy(reservation));
+        if ($scope.reservation.rooms.length <= 0) {
+          return showAlert(ev, 'room');
+        }
+        if ($scope.reservation.guests.length <= 0) {
+          return showAlert(ev, 'guest');
+        }
+        reservations.create(angular.copy($scope.reservation));
       }
     };
 
@@ -68,22 +81,22 @@ angular.module('myApp.reservations', ['ngRoute'])
     $scope.daysStaying = 1;
 
     $scope.inDateChange = function () {
-      $scope.outMinDate = angular.isDefined($scope.reservation.checkIn) ?
+      $scope.outMinDate = angular.isDate($scope.reservation.checkIn) ?
         moment($scope.reservation.checkIn).format("YYYY-MM-DD") :
         d_outMinDate;
       updateDays();
     };
 
     function updateDays() {
-      if (angular.isDefined($scope.reservation.checkIn) &&
-        angular.isDefined($scope.reservation.checkOut)) {
+      if (angular.isDate($scope.reservation.checkIn) &&
+        angular.isDate($scope.reservation.checkOut)) {
         $scope.daysStaying = moment($scope.reservation.checkOut)
           .diff(moment($scope.reservation.checkIn), 'days');
       }
     }
 
     $scope.outDateChange = function () {
-      $scope.inMaxDate = angular.isDefined($scope.reservation.checkOut) ?
+      $scope.inMaxDate = angular.isDate($scope.reservation.checkOut) ?
         moment($scope.reservation.checkOut).format("YYYY-MM-DD") :
         d_inMaxDate;
       updateDays();
@@ -93,19 +106,57 @@ angular.module('myApp.reservations', ['ngRoute'])
       {label: 'cash', value: 1},
       {label: 'credit', value: 2}];
 
-  $scope.addGuest = function(ev) {
-    $mdDialog.show({
-      controller: 'GuestsNewCtrl',
-      templateUrl: 'guests/guest_edit.html',
-      targetEvent: ev,
-    })
-    .then(function(guest) {
+    $scope.commitGuest = function (guest) {
       $scope.reservation.guests.push(guest);
-    }, function() {
-      $scope.guest = 'no guest';
-    });
-  };
+    };
+    $scope.addGuest = function(ev) {
+      $mdDialog.show({
+        controller: 'GuestsNewCtrl',
+        templateUrl: 'guests/guest_edit.html',
+        targetEvent: ev,
+        locals: { guest: {}, commitGuest: $scope.commitGuest},
+      })
+      .then($scope.commitGuest, function() {
+        $scope.guest = 'no guest';
+      });
+    };
 
+    $scope.updateGuest = function(ev, guest) {
+      $mdDialog.show({
+        controller: 'GuestsNewCtrl',
+        templateUrl: 'guests/guest_edit.html',
+        targetEvent: ev,
+        locals: { guest: guest }
+      })
+      .then(function(guest) {
+        $scope.reservation.guests.push(guest);
+      }, function() {
+        $scope.guest = 'no guest';
+      });
+    };
+
+    $scope.selectRoom = function(ev) {
+      if (!angular.isDate($scope.reservation.checkIn)) {
+        return showAlert(ev, 'check in date');
+      }
+      if (!angular.isDate($scope.reservation.checkOut)) {
+        return showAlert(ev, 'check out date');
+      }
+      $mdDialog.show({
+        controller: 'RoomSelection',
+        templateUrl: 'rooms/rooms.html',
+        targetEvent: ev,
+        locals: {
+          checkIn: $scope.reservation.checkIn,
+          checkOut: $scope.reservation.checkOut
+         }
+      })
+      .then(function(room) {
+        $scope.reservation.rooms.push(room);
+      }, function() {
+        $scope.room = 'no room';
+      });
+    };
 }])
 
 .factory('reservations', function() {

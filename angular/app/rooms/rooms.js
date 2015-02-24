@@ -31,6 +31,27 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
       rooms.saveById(room);
     };
 }])
+
+.controller('RoomSelection',
+  ['$scope', '$mdDialog', 'rooms', 'checkIn', 'checkOut',
+  function($scope, $mdDialog, rooms, checkIn, checkOut) {
+    $scope.rooms = rooms.getAvailable(checkIn, checkOut);
+
+    $scope.save = function(room) {
+      if ($scope.roomForm.$valid) {
+        rooms.saveById(room);
+        $mdDialog.hide(room);
+      }
+    };
+    $scope.hide = function() {
+      $mdDialog.hide();
+    };
+    $scope.cancel = function() {
+      $mdDialog.cancel();
+    };
+
+}])
+
 .factory('rooms', function() {
   var beds = [ 'single','double'];
 
@@ -63,6 +84,9 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
   }];
   return {
     getAll: function() {
+      return Rs;
+    },
+    getAvailable: function(checkIn, checkOut) {
       return Rs;
     },
     getById: function(number) {

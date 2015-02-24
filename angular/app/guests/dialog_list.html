@@ -1,0 +1,51 @@
+<md-dialog aria-label="input guest">
+  <div layout="column">
+    <md-content class="md-padding">
+      <md-card ng-repeat="guest in guests" ng-click="select(guest)" class="normalCard">
+        <div layout layout-sm="column">
+          <div class="md-tile-content" flex>
+            <p>First Name</p>
+            <h3>{{guest.firstName}}</h3>
+          </div>
+          <div class="md-tile-content" flex>
+            <p>Last Name </p>
+            <h3>{{guest.lastName}}</h3>
+          </div>
+        </div>
+        <div layout layout-sm="column">
+          <div class="md-tile-content" flex>
+            <p>Address</p>
+            <h3>{{guest.address}}</h3>
+          </div>
+          <div class="md-tile-content" flex>
+            <p>City</p>
+            <h3>{{guest.city}}asdf</h3>
+          </div>
+          <div class="md-tile-content" flex>
+            <p>State</p>
+            <h3>{{guest.state}}asdf</h3>
+          </div>
+          <div class="md-tile-content" flex>
+            <p>Postal Code</p>
+            <h3>{{guest.postalCode}}</h3>
+          </div>
+        </div>
+        <div layout layout-sm="column">
+          <div class="md-tile-content" flex>
+            <p>dateOfBirth</p>
+            <h3>{{guest.dateOfBirth | date}}</h3>
+          </div>
+          <div class="md-tile-content" flex>
+            <p>idNumber</p>
+            <h3>{{guest.idNumber}}</h3>
+          </div>
+        </div>
+        <div class="md-tile-content" flex>
+          <p>comment</p>
+          <h3>{{guest.comment}}</h3>
+        </div>
+        <md-button ng-click="hide()">back</md-button>
+      </md-card>
+    </md-content>
+  </div>
+</md-dialog>

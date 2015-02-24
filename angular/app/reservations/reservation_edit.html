@@ -1,68 +1,68 @@
-<!-- <h2> IN {{inMinDate}} --- {{inMaxDate}} OUT {{outMaxDate}} --- {{outMinDate}}</h2>
+<h2> IN {{inMinDate}} --- {{inMaxDate}} OUT {{outMaxDate}} --- {{outMinDate}}</h2>
 <h4>{{reservation}}</h4>
 <h3>{{daysStaying}}</h3>
-<h3>{{guest}}</h3> -->
+<h3>{{guest}}</h3>
+<h3>{{room}}</h3>
+<h3> valid {{reservationForm.$valid}}</h3>
+
 <div layout="row">
-  <div flex="20"></div>
+  <div flex="20" flex-md="10" flex-sm="0"></div>
   <md-card flex>
     <md-content class="md-padding">
-      <form name="reservationForm">
-        <div layout layout-sm="column">
-          <div class="md-tile-content" flex>
-            <p>Check In Date</p>
-            <input type='date' ng-model="reservation.checkIn" min="{{inMinDate}}" max="{{inMaxDate}}"ng-change="inDateChange()" required>
+      <form novalidate name="reservationForm">
+        <div layout="column">
+          <div layout layout-sm="column">
+            <div class="md-tile-content" flex>
+              <p>Check In Date</p>
+              <input type='date' ng-model="reservation.checkIn" min="{{inMinDate}}" max="{{inMaxDate}}"ng-change="inDateChange()" required>
+            </div>
+            <div class="md-tile-content" flex>
+              <p>Check Out Date</p>
+              <input type='date' ng-model="reservation.checkOut"  min="{{outMinDate}}" max="{{outMaxDate}}" ng-change="outDateChange()" required>
+            </div>
           </div>
-          <div class="md-tile-content" flex>
-            <p>Check Out Date</p>
-            <input type='date' ng-model="reservation.checkOut"  min="{{outMinDate}}" max="{{outMaxDate}}" ng-change="outDateChange()" required>
+          <div layout layout-sm="column">
+            <md-input-container flex>
+              <label>Rate Per Night</label>
+              <input type="number" min="0" max="500" ng-model="reservation.rate" required>
+            </md-input-container>
+            <div layout='column'>
+              <label>Total Stay:</label>
+              <label>{{reservation.rate * reservation.roomsRequested * daysStaying | currency:"$"}}</label>
+            </div>
           </div>
-        </div>
-        <div layout layout-sm="column">
-          <md-input-container flex>
-            <label>Number Of Rooms</label>
-            <input type='number' min="1" max="10" ng-model="reservation.roomsRequested" required>
-          </md-input-container>
-          <md-input-container flex>
-            <label>Rate Per Night</label>
-            <input type="number" min="0" max="500" ng-model="reservation.rate" required>
-          </md-input-container>
-          <div layout='column'>
-            <label>Total Stay:</label>
-            <label>{{reservation.rate * reservation.roomsRequested * daysStaying | currency:"$"}}</label>
+          <div layout layout-sm="column">
+            <md-radio-group ng-model="reservation.paymentType" required>
+              <label>Payment Type</label>
+                <div layout layout-sm="column">
+                  <md-radio-button ng-repeat="type in paymentTypes"
+                                   ng-value="type.value"
+                                   ng-disabled=" type.isDisabled ">
+                      {{ type.label }}
+                  </md-radio-button>
+                </div>
+            </md-radio-group>
           </div>
-        </div>
-        <div layout layout-sm="column">
-          <md-radio-group ng-model="reservation.paymentType" required>
-            <label>Payment Type</label>
-              <div layout layout-sm="column">
-                <md-radio-button ng-repeat="type in paymentTypes"
-                                 ng-value="type.value"
-                                 ng-disabled=" type.isDisabled ">
-                    {{ type.label }}
-                </md-radio-button>
-              </div>
-          </md-radio-group>
-        </div>
-        <div layout layout-sm="column">
-          <p>Guest:</p>
-          <md-button ng-repeat='guest in reservation.guests' class="md-raised">{{guest.firstName}}</md-button>
-          <md-button class="md-raised" ng-click="addGuest($event)">+</md-button>
-        </div>
-        <div layout="row">
-          <div class="md-tile-content" flex>
+          <div layout layout-sm="column">
+            <p>Guest:</p>
+            <md-button ng-repeat="guest in reservation.guests" class="md-raised" ng-click="updateGuest($event, guest)" >{{guest.firstName}}</md-button>
+            <md-button class="md-raised" ng-click="addGuest($event)">+</md-button>
+          </div>
+          <div layout layout-sm="column">
             <p>Rooms</p>
-            <label ng-repeat='room in reservation.rooms'>{{room}}, </label>
+            <md-button class="md-raised" ng-repeat='room in reservation.rooms' ng-click="updateRoom($event)">{{room.number}}</md-button>
+            <md-button class="md-raised" ng-click="selectRoom($event)">+</md-button>
           </div>
+          <div layout="row">
+            <md-input-container flex>
+              <label>Comments</label>
+              <input ng-model="reservation.comment">
+            </md-input-container >
+          </div>
+          <md-button class="md-raised md-primary" ng-click="save($event)">SAVE</md-button>
         </div>
-        <div layout="row">
-          <md-input-container flex>
-            <label>Comments</label>
-            <input ng-model="reservation.comment" required>
-          </md-input-container >
-        </div>
-        <md-button class="md-raised md-primary" ng-click="save(reservation)">SAVE</md-button>
       </form>
     </md-content>
   </md-card>
-  <div flex="20"></div>
+  <div flex="20" flex-md="10" flex-sm="0"></div>
 </div>
