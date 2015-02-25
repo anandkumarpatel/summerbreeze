@@ -4,7 +4,7 @@
 angular.module('myApp', [
   'ngRoute',
   'ngMaterial',
-  'myApp.view1',
+  'myApp.main',
   'myApp.reservations',
   'myApp.rooms',
   'myApp.guests',
@@ -13,6 +13,6 @@ angular.module('myApp', [
 
 .config(function($mdThemingProvider) {
   $mdThemingProvider.theme('default')
-    .primaryPalette('pink')
-    .accentPalette('orange');
-})
+    .primaryPalette('orange')
+    .accentPalette('pink');
+});

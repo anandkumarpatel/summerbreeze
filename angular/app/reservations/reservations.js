@@ -37,7 +37,7 @@ angular.module('myApp.reservations', ['ngRoute'])
   ['$scope', '$routeParams', '$location', '$mdDialog', 'reservations', 'moment',
   function($scope, $routeParams, $location, $mdDialog, reservations, moment) {
     $scope.reservation = {
-      checkIn: new Date(),
+      checkIn: new Date(moment().startOf('day').valueOf()),
       checkOut: null,
       rate: 0,
       paymentType: 1,
@@ -67,37 +67,39 @@ angular.module('myApp.reservations', ['ngRoute'])
           return showAlert(ev, 'guest');
         }
         reservations.create(angular.copy($scope.reservation));
+        $location.path('/');
       }
     };
 
-    var d_inMaxDate = moment().add(1, 'year').subtract(1, 'day').format("YYYY-MM-DD");
-    var d_outMinDate = moment().add(1, 'day').format("YYYY-MM-DD");
+    var d_inMaxDate = moment().startOf('day').add(1, 'year').subtract(1, 'day').format("YYYY-MM-DD");
+    var d_outMinDate = moment().startOf('day').add(1, 'day').format("YYYY-MM-DD");
 
-    $scope.inMinDate = moment().format("YYYY-MM-DD");
+    $scope.inMinDate = moment().startOf('day').format("YYYY-MM-DD");
     $scope.inMaxDate = d_inMaxDate;
 
     $scope.outMinDate = d_outMinDate;
-    $scope.outMaxDate = moment().add(1, 'year').format("YYYY-MM-DD");
+    $scope.outMaxDate = moment().startOf('day').add(1, 'year').format("YYYY-MM-DD");
     $scope.daysStaying = 1;
-
-    $scope.inDateChange = function () {
-      $scope.outMinDate = angular.isDate($scope.reservation.checkIn) ?
-        moment($scope.reservation.checkIn).format("YYYY-MM-DD") :
-        d_outMinDate;
-      updateDays();
-    };
 
     function updateDays() {
       if (angular.isDate($scope.reservation.checkIn) &&
         angular.isDate($scope.reservation.checkOut)) {
-        $scope.daysStaying = moment($scope.reservation.checkOut)
-          .diff(moment($scope.reservation.checkIn), 'days');
+        $scope.daysStaying = moment($scope.reservation.checkOut).startOf('day')
+          .diff(moment($scope.reservation.checkIn).startOf('day'), 'days');
       }
     }
 
+    $scope.inDateChange = function () {
+      $scope.outMinDate = angular.isDate($scope.reservation.checkIn) ?
+        moment($scope.reservation.checkIn).add(1, 'day').format("YYYY-MM-DD") :
+        d_outMinDate;
+      updateDays();
+    };
+
+
     $scope.outDateChange = function () {
       $scope.inMaxDate = angular.isDate($scope.reservation.checkOut) ?
-        moment($scope.reservation.checkOut).format("YYYY-MM-DD") :
+        moment($scope.reservation.checkOut).subtract(1, 'day').format("YYYY-MM-DD") :
         d_inMaxDate;
       updateDays();
     };
@@ -109,15 +111,13 @@ angular.module('myApp.reservations', ['ngRoute'])
     $scope.commitGuest = function (guest) {
       $scope.reservation.guests.push(guest);
     };
+
     $scope.addGuest = function(ev) {
       $mdDialog.show({
         controller: 'GuestsNewCtrl',
         templateUrl: 'guests/guest_edit.html',
         targetEvent: ev,
         locals: { guest: {}, commitGuest: $scope.commitGuest},
-      })
-      .then($scope.commitGuest, function() {
-        $scope.guest = 'no guest';
       });
     };
 
@@ -126,12 +126,10 @@ angular.module('myApp.reservations', ['ngRoute'])
         controller: 'GuestsNewCtrl',
         templateUrl: 'guests/guest_edit.html',
         targetEvent: ev,
-        locals: { guest: guest }
+        locals: { guest: guest, commitGuest: $scope.commitGuest},
       })
       .then(function(guest) {
         $scope.reservation.guests.push(guest);
-      }, function() {
-        $scope.guest = 'no guest';
       });
     };
 
@@ -159,7 +157,7 @@ angular.module('myApp.reservations', ['ngRoute'])
     };
 }])
 
-.factory('reservations', function() {
+.factory('reservations', ['guests', 'rooms', function(guests, rooms) {
   var Rs = [{
     checkIn: new Date('12/2/2015'),
     checkOut: new Date('12/6/2015'),
@@ -168,8 +166,8 @@ angular.module('myApp.reservations', ['ngRoute'])
     status: 2,
     roomsRequested: 1,
     comment: 'late checking',
-    guests: ['one', 'two'],
-    rooms: ['a', 'b'],
+    guests: [guests.getById(0), guests.getById(1)],
+    rooms: [rooms.getById(1), rooms.getById(0)],
     _id: 0
   }, {
     checkIn: new Date('1/2/1989'),
@@ -179,8 +177,8 @@ angular.module('myApp.reservations', ['ngRoute'])
     status: 1,
     roomsRequested: 1,
     comment: 'asdf checking',
-    guests: ['one', 'two'],
-    rooms: ['a', 'b'],
+    guests: [guests.getById(2)],
+    rooms: [rooms.getById(2)],
     _id: 1
   }, {
     checkIn: new Date('1/1/1989'),
@@ -190,8 +188,8 @@ angular.module('myApp.reservations', ['ngRoute'])
     status: 2,
     roomsRequested: 2,
     comment: 'late adfs',
-    guests: ['one', 'two'],
-    rooms: ['a', 'b'],
+    guests: [guests.getById(3)],
+    rooms: [rooms.getById(3)],
     _id: 2
   }, {
     checkIn: new Date('1/5/1989'),
@@ -201,8 +199,8 @@ angular.module('myApp.reservations', ['ngRoute'])
     status: 4,
     roomsRequested: 1,
     comment: 'laasdfking',
-    guests: ['one', 'two'],
-    rooms: ['a', 'b'],
+    guests: [guests.getById(0)],
+    rooms: [rooms.getById(3)],
     _id: 3
   }];
 
@@ -215,7 +213,6 @@ angular.module('myApp.reservations', ['ngRoute'])
     },
     create: function(data) {
       Rs.push(data);
-      console.log('added', data, Rs);
     }
   };
-});
+}]);

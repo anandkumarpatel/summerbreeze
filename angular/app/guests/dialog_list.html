@@ -1,7 +1,9 @@
 <md-dialog aria-label="input guest">
-  <div layout="column">
-    <md-content class="md-padding">
-      <md-card ng-repeat="guest in guests" ng-click="select(guest)" class="normalCard">
+    <md-content>
+      Search: <input ng-model="searchText">
+    </md-content>
+    <md-content styd>
+      <md-card ng-repeat="guest in guests | filter:searchText" ng-click="select(guest)">
         <div layout layout-sm="column">
           <div class="md-tile-content" flex>
             <p>First Name</p>
@@ -44,8 +46,9 @@
           <p>comment</p>
           <h3>{{guest.comment}}</h3>
         </div>
-        <md-button ng-click="hide()">back</md-button>
       </md-card>
     </md-content>
-  </div>
+    <md-content>
+      <md-button ng-click="cancel()">back</md-button>
+    </md-content>
 </md-dialog>

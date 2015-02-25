@@ -1,8 +1,11 @@
-<md-dialog aria-label="input guest">
+<md-dialog aria-label="input rooms">
+  <md-content>
+    Search: <input ng-model="searchText">
+  </md-content>
   <md-content>
     <form name="roomForm">
       <div layout="column">
-        <md-card ng-repeat="room in rooms" ng-click="save(room)">
+        <md-card ng-repeat="room in rooms | filter:searchText" ng-click="save(room)">
           <div layout="row">
             <div class="md-tile-content" flex>
               <p>Room Number</p>

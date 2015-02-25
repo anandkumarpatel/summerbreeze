@@ -1,9 +1,10 @@
-<h2> IN {{inMinDate}} --- {{inMaxDate}} OUT {{outMaxDate}} --- {{outMinDate}}</h2>
-<h4>{{reservation}}</h4>
-<h3>{{daysStaying}}</h3>
-<h3>{{guest}}</h3>
-<h3>{{room}}</h3>
-<h3> valid {{reservationForm.$valid}}</h3>
+<h4>reservation {{reservation | json:4}}</h4>
+<h4>daysStaying {{daysStaying}}</h4>
+<h4>guest {{guest}}</h4>
+<h4>room {{room}}</h4>
+<h4> valid {{reservationForm.$valid}}</h4>
+in min={{inMinDate}} max={{inMaxDate}}
+out min={{outMinDate}} max={{outMaxDate}}
 
 <div layout="row">
   <div flex="20" flex-md="10" flex-sm="0"></div>
@@ -12,14 +13,14 @@
       <form novalidate name="reservationForm">
         <div layout="column">
           <div layout layout-sm="column">
-            <div class="md-tile-content" flex>
-              <p>Check In Date</p>
-              <input type='date' ng-model="reservation.checkIn" min="{{inMinDate}}" max="{{inMaxDate}}"ng-change="inDateChange()" required>
-            </div>
-            <div class="md-tile-content" flex>
-              <p>Check Out Date</p>
+            <md-input-container flex>
+              <label>Check In Date</label>
+              <input type='date' ng-model="reservation.checkIn" min="{{inMinDate}}" max="{{inMaxDate}}" ng-change="inDateChange()" required>
+            </md-input-container>
+            <md-input-container flex>
+              <label>Check Out Date</label>
               <input type='date' ng-model="reservation.checkOut"  min="{{outMinDate}}" max="{{outMaxDate}}" ng-change="outDateChange()" required>
-            </div>
+            </md-input-container>
           </div>
           <div layout layout-sm="column">
             <md-input-container flex>
