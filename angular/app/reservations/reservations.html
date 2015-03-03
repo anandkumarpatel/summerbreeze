@@ -18,11 +18,11 @@
       </div>
       <div class="md-tile-content" flex>
         <p>Payment Type</p>
-        <h3>{{reservation.paymentType}}</h3>
+        <h3>{{reservation.paymentType | f_paymentType}}</h3>
       </div>
       <div class="md-tile-content" flex>
         <p>Status</p>
-        <h3>{{reservation.status}}</h3>
+        <h3>{{reservation.status | f_status}}</h3>
       </div>
       <div class="md-tile-content" flex>
         <p>Number Of Rooms Requested</p>

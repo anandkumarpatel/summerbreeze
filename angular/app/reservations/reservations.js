@@ -10,7 +10,7 @@ angular.module('myApp.reservations', ['ngRoute'])
     controller: 'ReservationsCtrl'
   }).when('/reservations/:id', {
     templateUrl: 'reservations/reservation_edit.html',
-    controller: 'ReservationIdCtrl'
+    controller: 'ReservationCtrl'
   }).when('/reservation/new', {
     templateUrl: 'reservations/reservation_edit.html',
     controller: 'ReservationNewCtrl'
@@ -23,39 +23,29 @@ angular.module('myApp.reservations', ['ngRoute'])
       $location.path('/reservations/'+path);
     };
 }])
-
-.controller('ReservationIdCtrl',
-  ['$scope', '$routeParams', '$location', 'reservations',
-  function($scope, $routeParams, $location, reservations) {
-    $scope.reservation = angular.copy(reservations.getById($routeParams.id));
-    $scope.save = function(reservation) {
-      reservations.saveById(reservation);
-    };
-}])
-
-.controller('ReservationNewCtrl',
+// use this for both new and edit
+.controller('ReservationCtrl',
   ['$scope', '$routeParams', '$location', '$mdDialog', 'reservations', 'moment',
   function($scope, $routeParams, $location, $mdDialog, reservations, moment) {
-    $scope.reservation = {
-      checkIn: new Date(moment().startOf('day').valueOf()),
-      checkOut: null,
-      rate: 0,
-      paymentType: 1,
-      status: 2,
-      roomsRequested: 1,
-      comment: '',
-      guests: [],
-      rooms: [],
-      _id: 0
-    };
-    function showAlert(ev, missing) {
-      $mdDialog.show(
-        $mdDialog.alert()
-        .title('you forgot something')
-        .content('please pick ' + missing + ' to continue')
-        .ok('continue')
-        .targetEvent(ev)
-      );
+    $scope.isNewReservation = false;
+    if ($routeParams.id) {
+      $scope.reservation = angular.copy(reservations.getById($routeParams.id));
+      console.log($scope.reservation);
+    } else {
+      // if new set to array
+      $scope.isNewReservation = true;
+      $scope.reservation = {
+        checkIn: new Date(moment().startOf('day').valueOf()),
+        checkOut: null,
+        rate: 0,
+        paymentType: 1,
+        status: 2,
+        roomsRequested: 1,
+        comment: '',
+        guests: [],
+        rooms: [],
+        _id: 0
+      };
     }
 
     $scope.save = function(ev) {
@@ -66,10 +56,26 @@ angular.module('myApp.reservations', ['ngRoute'])
         if ($scope.reservation.guests.length <= 0) {
           return showAlert(ev, 'guest');
         }
-        reservations.create(angular.copy($scope.reservation));
-        $location.path('/');
+        if ($scope.isNewReservation) {
+          reservations.create(angular.copy($scope.reservation));
+        } else {
+          reservations.update(angular.copy($scope.reservation));
+        }
+        $location.path('/main');
+      } else {
+        return showAlert(ev, 'check out date');
       }
     };
+
+    function showAlert(ev, missing) {
+      $mdDialog.show(
+        $mdDialog.alert()
+        .title('you forgot something')
+        .content('please pick ' + missing + ' to continue')
+        .ok('continue')
+        .targetEvent(ev)
+      );
+    }
 
     var d_inMaxDate = moment().startOf('day').add(1, 'year').subtract(1, 'day').format("YYYY-MM-DD");
     var d_outMinDate = moment().startOf('day').add(1, 'day').format("YYYY-MM-DD");
@@ -158,6 +164,7 @@ angular.module('myApp.reservations', ['ngRoute'])
 }])
 
 .factory('reservations', ['guests', 'rooms', function(guests, rooms) {
+  var today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
   var Rs = [{
     checkIn: new Date('12/2/2015'),
     checkOut: new Date('12/6/2015'),
@@ -171,10 +178,10 @@ angular.module('myApp.reservations', ['ngRoute'])
     _id: 0
   }, {
     checkIn: new Date('1/2/1989'),
-    checkOut: new Date('1/10/1989'),
+    checkOut: new Date('1/10/2222'),
     rate: 111.21,
     paymentType: 1,
-    status: 1,
+    status: 2,
     roomsRequested: 1,
     comment: 'asdf checking',
     guests: [guests.getById(2)],
@@ -182,7 +189,7 @@ angular.module('myApp.reservations', ['ngRoute'])
     _id: 1
   }, {
     checkIn: new Date('1/1/1989'),
-    checkOut: new Date('1/11/1989'),
+    checkOut: angular.copy(today),
     rate: 33.12,
     paymentType: 1,
     status: 2,
@@ -192,11 +199,11 @@ angular.module('myApp.reservations', ['ngRoute'])
     rooms: [rooms.getById(3)],
     _id: 2
   }, {
-    checkIn: new Date('1/5/1989'),
-    checkOut: new Date('1/9/1989'),
+    checkIn: angular.copy(today),
+    checkOut: new Date('1/9/2999'),
     rate: 12.3,
     paymentType: 1,
-    status: 4,
+    status: 1,
     roomsRequested: 1,
     comment: 'laasdfking',
     guests: [guests.getById(0)],
@@ -204,15 +211,98 @@ angular.module('myApp.reservations', ['ngRoute'])
     _id: 3
   }];
 
+  function updateState(reservation, newState) {
+      reservation.status = newState;
+      Rs[reservation._id].status = newState;
+  }
   return {
     getAll: function() {
       return Rs;
     },
-    getById: function(id) {
-      return Rs[id];
+    getById: function(_id) {
+      return Rs[_id];
     },
     create: function(data) {
       Rs.push(data);
+    },
+    checkIn: function(reservation) {
+      updateState(reservation, 2);
+    },
+    checkOut: function(reservation) {
+      updateState(reservation, 3);
+    },
+    cancel: function(reservation) {
+      updateState(reservation, 4);
+    },
+    update: function(reservation) {
+      Rs[reservation._id] = reservation;
     }
   };
-}]);
+}])
+
+.filter('f_paymentType', function () {
+  var paymentType = {
+    1: 'credit card',
+    2: 'cash'
+  };
+  return function (item) {
+    return paymentType[item];
+  };
+})
+
+.filter('f_status', function () {
+  var status = {
+    1: 'reserved',
+    2: 'checked in',
+    3: 'checked out',
+    4: 'canceled'
+  };
+  return function (item) {
+    return status[item];
+  };
+})
+
+.filter('f_checkingOut', function () {
+  return function(reservations) {
+    var filtered = [];
+    angular.forEach(reservations, function(reservation) {
+      if(reservation.status === 2 &&
+        stripTime(reservation.checkOut) === stripTime(new Date())) {
+        filtered.push(reservation);
+      }
+    });
+    return filtered;
+  };
+})
+
+.filter('f_checkingIn', function () {
+  return function(reservations) {
+    var filtered = [];
+    angular.forEach(reservations, function(reservation) {
+      if(reservation.status === 1 &&
+        stripTime(reservation.checkIn) === stripTime(new Date())) {
+        filtered.push(reservation);
+      }
+    });
+    return filtered;
+  };
+})
+
+.filter('f_stayover', function () {
+  return function(reservations) {
+    var filtered = [];
+    var today = new Date();
+    angular.forEach(reservations, function(reservation) {
+      if(reservation.status === 2 &&
+        stripTime(reservation.checkIn) < stripTime(new Date()) &&
+        stripTime(reservation.checkOut) > stripTime(new Date())) {
+        filtered.push(reservation);
+      }
+    });
+    return filtered;
+  };
+});
+
+function stripTime(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+}

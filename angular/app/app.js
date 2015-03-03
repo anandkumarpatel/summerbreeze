@@ -10,9 +10,4 @@ angular.module('myApp', [
   'myApp.guests',
   'myApp.version'
 ])
-
-.config(function($mdThemingProvider) {
-  $mdThemingProvider.theme('default')
-    .primaryPalette('orange')
-    .accentPalette('pink');
-});
+;

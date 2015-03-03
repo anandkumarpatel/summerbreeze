@@ -10,6 +10,12 @@ angular.module('myApp.main', ['ngRoute'])
     });
 }])
 .controller('Main1Ctrl', ['$scope','$location', 'reservations', function($scope, $location, reservations) {
-    $scope.reservations = reservations.getAll();
+    $scope.reservationList = reservations.getAll(); // getTodaysReservation();
+    $scope.reservations = reservations;
+    $scope.kinds = [1,2,3,4];
     $scope.$location = $location;
+    $scope.goRes = function (path) {
+      $location.path('/reservations/'+path);
+    };
+
 }]);

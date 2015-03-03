@@ -1,58 +1,117 @@
-<div layout layout-md="column">
-  <div layout="column">
+<div layout layout-md="row">
+  <div layout="column" flex="70" style="height: 95vh;">
+  <!-- reserved -->
+    <md-toolbar class="md-theme-light">
+      <h1 class="md-toolbar-tools">
+        <span>Todays Reservations</span>
+      </h1>
+    </md-toolbar>
     <md-content class="md-padding">
-      <md-card ng-repeat="reservation in reservations" ng-click="go(reservation._id)" class='normalCard'>
-      <div layout="row">
-        <div class="md-tile-content" flex>
-          <p>Check In Date</p>
-          <h3>{{reservation.checkIn | date:'medium'}}</h3>
+      <md-card ng-repeat="reservation in reservationList | f_checkingIn" ng-click="goRes(reservation._id)">
+        <div layout="row" layout-sm="column">
+          <div class="md-tile-content" flex>
+            <p>Check Out Date</p>
+            <h3>{{reservation.checkOut | date:'shortDate'}} </h3>
+          </div>
+          <div class="md-tile-content" flex>
+            <p>Rate</p>
+            <h3>{{reservation.rate | currency:"USD$":0}}</h3>
+          </div>
+          <div class="md-tile-content" flex>
+            <p>Payment Type</p>
+            <h3>{{reservation.paymentType | f_paymentType}}</h3>
+          </div>
         </div>
-        <div class="md-tile-content" flex>
-          <p>Check Out Date</p>
-          <h3>{{reservation.checkOut | date:'medium'}} </h3>
+        <div layout="row" layout-sm="column">
+          <div class="md-tile-content" flex>
+            <p>Guest</p>
+            <md-button class="md-raised" ng-repeat="guest in reservation.guests" ng-click="updateGuest($event, guest)" >{{guest.firstName}}</md-button>
+          </div>
+          <div class="md-tile-content" flex>
+            <p>Rooms</p>
+            <md-button class="md-raised" ng-repeat='room in reservation.rooms' ng-click="updateRoom($event)">{{room.number}}</md-button>
+          </div>
         </div>
-      </div>
-      <div layout="row">
-        <div class="md-tile-content" flex>
-          <p>Rate</p>
-          <h3>{{reservation.rate | currency:"USD$":0}}</h3>
+        <div layout="row">
+          <div class="md-tile-content" flex>
+            <p>Comments</p>
+            <h3>{{reservation.comment}}</h3>
+          </div>
         </div>
-        <div class="md-tile-content" flex>
-          <p>Payment Type</p>
-          <h3>{{reservation.paymentType}}</h3>
+        <div layout="row">
+          <md-button class="md-raised md-primary" ng-click="reservations.checkIn(reservation)" flex="80"> checkIn </md-button>
+          <md-button class="md-raised md-warn" ng-click="reservations.cancel(reservation)" flex="20"> cancel </md-button>
         </div>
-        <div class="md-tile-content" flex>
-          <p>Status</p>
-          <h3>{{reservation.status}}</h3>
-        </div>
-      </div>
-      <div layout="row">
-        <div class="md-tile-content" flex>
-          <p>Guest</p>
-          <md-button class="md-raised" ng-repeat="guest in reservation.guests" ng-click="updateGuest($event, guest)" >{{guest.firstName}}</md-button>
-        </div>
-      </div>
-      <div>
-        <div class="md-tile-content" flex>
-          <p>Rooms</p>
-          <md-button class="md-raised" ng-repeat='room in reservation.rooms' ng-click="updateRoom($event)">{{room.number}}</md-button>
-        </div>
-      </div>
-      <div layout="row">
-        <div class="md-tile-content" flex>
-          <p>Comments</p>
-          <h3>{{reservation.comment}}</h3>
-        </div>
-      </div>
       </md-card>
     </md-content>
+<!-- checking out -->
+    <md-toolbar class="md-theme-light">
+      <h1 class="md-toolbar-tools">
+        <span>Todays CheckOut</span>
+      </h1>
+    </md-toolbar>
+    <md-content class="md-padding">
+      <md-card ng-repeat="reservation in reservationList | f_checkingOut" ng-click="goRes(reservation._id)">
+        <div layout="row" layout-sm="column">
+          <div class="md-tile-content" flex>
+            <p>Check Out Date</p>
+            <h3>{{reservation.checkOut | date:'shortDate'}} </h3>
+          </div>
+          <div class="md-tile-content" flex>
+            <p>Rate</p>
+            <h3>{{reservation.rate | currency:"USD$":0}}</h3>
+          </div>
+          <div class="md-tile-content" flex>
+            <p>Payment Type</p>
+            <h3>{{reservation.paymentType | f_paymentType}}</h3>
+          </div>
+        </div>
+        <div layout="row" layout-sm="column">
+          <div class="md-tile-content" flex>
+            <p>Rooms</p>
+            <md-button class="md-raised" ng-repeat='room in reservation.rooms' ng-click="updateRoom($event)">{{room.number}}</md-button>
+          </div>
+          <div class="md-tile-content" flex>
+            <p>Comments</p>
+            <h3>{{reservation.comment}}</h3>
+          </div>
+        </div>
+        <div layout="row">
+          <md-button class="md-raised md-primary" ng-click="reservations.checkOut(reservation)" flex> Check Out </md-button>
+        </div>
+      </md-card>
+    </md-content>
+<!-- stayover -->
+    <md-toolbar class="md-theme-light">
+      <h1 class="md-toolbar-tools">
+        <span>Stayover</span>
+      </h1>
+    </md-toolbar>
+    <md-content class="md-padding">
+      <md-card ng-repeat="reservation in reservationList | f_stayover" ng-click="goRes(reservation._id)">
+        <div layout="row" layout-sm="column">
+          <div class="md-tile-content" flex>
+            <p>Check Out Date</p>
+            <h3>{{reservation.checkOut | date:'shortDate'}} </h3>
+          </div>
+          <div class="md-tile-content" flex>
+            <p>Rooms</p>
+            <md-button class="md-raised" ng-repeat='room in reservation.rooms' ng-click="updateRoom($event)">{{room.number}}</md-button>
+          </div>
+        </div>
+        <div layout="row">
+          <md-button class="md-raised md-primary" ng-click="reservations.checkOut(reservation)" flex> Early Check Out </md-button>
+        </div>
+      </md-card>
+    </md-content>
+<!-- free -->
   </div>
-  <div>
+  <div flex="30">
     <ol id="reservations-list">
-      <li> <button ng-click="$location.path('/reservation/new')"> create reservation </button> </li>
-      <li> <button ng-click="$location.path('/reservations')"> view all reservation </button> </li>
-      <li> <button ng-click="$location.path('/guests')"> view all guest </button> </li>
-      <li> <button ng-click="$location.path('/rooms')"> view all rooms </button> </li>
+      <li> <md-button ng-click="$location.path('/reservation/new')"> create reservation </md-button> </li>
+      <li> <md-button ng-click="$location.path('/reservations')"> view all reservation </md-button> </li>
+      <li> <md-button ng-click="$location.path('/guests')"> view all guest </md-button> </li>
+      <li> <md-button ng-click="$location.path('/rooms')"> view all rooms </md-button> </li>
     </ol>
   </div>
 </div>
