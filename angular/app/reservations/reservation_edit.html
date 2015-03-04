@@ -7,7 +7,7 @@ in min={{inMinDate}} max={{inMaxDate}}
 out min={{outMinDate}} max={{outMaxDate}}
 
 <div layout="row">
-  <div flex="20" flex-md="10" flex-sm="0"></div>
+  <div flex="10" flex-sm="0"></div>
   <md-card flex>
     <md-content class="md-padding">
       <form novalidate name="reservationForm">
@@ -15,19 +15,19 @@ out min={{outMinDate}} max={{outMaxDate}}
           <div layout layout-sm="column">
             <md-input-container flex>
               <label>Check In Date</label>
-              <input type='date' ng-model="reservation.checkIn" min="{{inMinDate}}" max="{{inMaxDate}}" ng-change="inDateChange()" required>
+              <input type="date" ng-model="reservation.checkIn" min="{{inMinDate}}" max="{{inMaxDate}}" ng-change="inDateChange()" required>
             </md-input-container>
             <md-input-container flex>
               <label>Check Out Date</label>
-              <input type='date' ng-model="reservation.checkOut"  min="{{outMinDate}}" max="{{outMaxDate}}" ng-change="outDateChange()" required>
+              <input type="date" ng-model="reservation.checkOut"  min="{{outMinDate}}" max="{{outMaxDate}}" ng-change="outDateChange()" required>
             </md-input-container>
           </div>
           <div layout layout-sm="column">
-            <md-input-container flex>
+            <md-input-container>
               <label>Rate Per Night</label>
               <input type="number" min="0" max="500" ng-model="reservation.rate" required>
             </md-input-container>
-            <div layout='column'>
+            <div layout="column">
               <label>Total Stay:</label>
               <label>{{reservation.rate * reservation.roomsRequested * daysStaying | currency:"$"}}</label>
             </div>
@@ -46,12 +46,18 @@ out min={{outMinDate}} max={{outMaxDate}}
           </div>
           <div layout layout-sm="column">
             <p>Guest:</p>
-            <md-button ng-repeat="guest in reservation.guests" class="md-raised" ng-click="updateGuest($event, guest)" >{{guest.firstName}}</md-button>
+            <div layout="row" ng-repeat="guest in reservation.guests" >
+              <md-button class="md-raised" ng-click="updateGuest($event, guest)">{{guest.firstName}}</md-button>
+              <md-button class="md-raised" ng-click="removeGuest($event, guest)">X</md-button>
+            </div>
             <md-button class="md-raised" ng-click="addGuest($event)">+</md-button>
           </div>
           <div layout layout-sm="column">
             <p>Rooms</p>
-            <md-button class="md-raised" ng-repeat='room in reservation.rooms' ng-click="updateRoom($event)">{{room.number}}</md-button>
+            <div layout="row" ng-repeat="room in reservation.rooms" >
+              <md-button class="md-raised" ng-click="updateRoom($event)">{{room.number}}</md-button>
+              <md-button class="md-raised" ng-click="removeRoom($event, room)">X</md-button>
+            </div>
             <md-button class="md-raised" ng-click="selectRoom($event)">+</md-button>
           </div>
           <div layout="row">
@@ -60,10 +66,13 @@ out min={{outMinDate}} max={{outMaxDate}}
               <input ng-model="reservation.comment">
             </md-input-container >
           </div>
-          <md-button class="md-raised md-primary" ng-click="save($event)">SAVE</md-button>
+          <div layout="row">
+            <md-button class="md-raised md-primary" ng-click="save($event)" flex="70">SAVE</md-button>
+            <md-button class="md-raised" ng-click="goBack()" flex="30">back</md-button>
+          </div>
         </div>
       </form>
     </md-content>
   </md-card>
-  <div flex="20" flex-md="10" flex-sm="0"></div>
+  <div flex="10"flex-sm="0"></div>
 </div>

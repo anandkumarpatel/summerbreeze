@@ -17,16 +17,24 @@ angular.module('myApp.reservations', ['ngRoute'])
   }).otherwise({redirectTo: '/main'});
 }])
 
-.controller('ReservationsCtrl', ['$scope', '$location', 'reservations', function($scope, $location, reservations) {
+.controller('ReservationsCtrl', ['$scope', '$location', '$window', 'reservations',
+  function($scope, $location, $window, reservations) {
     $scope.reservations = reservations.getAll();
     $scope.go = function (path) {
       $location.path('/reservations/'+path);
     };
+    $scope.goBack = function() {
+      $window.history.back();
+    };
 }])
 // use this for both new and edit
 .controller('ReservationCtrl',
-  ['$scope', '$routeParams', '$location', '$mdDialog', 'reservations', 'moment',
-  function($scope, $routeParams, $location, $mdDialog, reservations, moment) {
+  ['$scope', '$routeParams', '$location', '$mdDialog', '$window', 'reservations', 'moment',
+  function($scope, $routeParams, $location, $mdDialog, $window, reservations, moment) {
+    $scope.goBack = function() {
+      $window.history.back();
+    };
+
     $scope.isNewReservation = false;
     if ($routeParams.id) {
       $scope.reservation = angular.copy(reservations.getById($routeParams.id));
@@ -39,7 +47,7 @@ angular.module('myApp.reservations', ['ngRoute'])
         rate: 0,
         paymentType: 1,
         status: 2,
-        roomsRequested: 1,
+        roomsRequested: 0,
         comment: '',
         guests: [],
         rooms: [],
@@ -138,6 +146,11 @@ angular.module('myApp.reservations', ['ngRoute'])
       });
     };
 
+    $scope.removeGuest = function(ev, guest) {
+      var index = $scope.reservation.guests.indexOf(guest);
+      $scope.reservation.guests.splice(index, 1);
+    };
+
     $scope.selectRoom = function(ev) {
       if (!angular.isDate($scope.reservation.checkIn)) {
         return showAlert(ev, 'check in date');
@@ -155,10 +168,17 @@ angular.module('myApp.reservations', ['ngRoute'])
          }
       })
       .then(function(room) {
+        $scope.reservation.roomsRequested++;
         $scope.reservation.rooms.push(room);
       }, function() {
         $scope.room = 'no room';
       });
+    };
+
+    $scope.removeRoom = function(ev, room) {
+      $scope.reservation.roomsRequested--;
+      var index = $scope.reservation.rooms.indexOf(room);
+      $scope.reservation.rooms.splice(index, 1);
     };
 }])
 
@@ -170,7 +190,7 @@ angular.module('myApp.reservations', ['ngRoute'])
     rate: 123.123,
     paymentType: 1,
     status: 2,
-    roomsRequested: 1,
+    roomsRequested: 2,
     comment: 'late checking',
     guests: [guests.getById(0), guests.getById(1)],
     rooms: [rooms.getById(1), rooms.getById(0)],
