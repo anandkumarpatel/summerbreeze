@@ -9,5 +9,4 @@ angular.module('myApp', [
   'myApp.rooms',
   'myApp.guests',
   'myApp.version'
-])
-;
+]);

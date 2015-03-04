@@ -13,8 +13,8 @@ angular.module('myApp.reservations', ['ngRoute'])
     controller: 'ReservationCtrl'
   }).when('/reservation/new', {
     templateUrl: 'reservations/reservation_edit.html',
-    controller: 'ReservationNewCtrl'
-  }).otherwise({redirectTo: '/reservation/new'});
+    controller: 'ReservationCtrl'
+  }).otherwise({redirectTo: '/main'});
 }])
 
 .controller('ReservationsCtrl', ['$scope', '$location', 'reservations', function($scope, $location, reservations) {
@@ -30,7 +30,6 @@ angular.module('myApp.reservations', ['ngRoute'])
     $scope.isNewReservation = false;
     if ($routeParams.id) {
       $scope.reservation = angular.copy(reservations.getById($routeParams.id));
-      console.log($scope.reservation);
     } else {
       // if new set to array
       $scope.isNewReservation = true;
@@ -294,7 +293,7 @@ angular.module('myApp.reservations', ['ngRoute'])
     var today = new Date();
     angular.forEach(reservations, function(reservation) {
       if(reservation.status === 2 &&
-        stripTime(reservation.checkIn) < stripTime(new Date()) &&
+        stripTime(reservation.checkIn) <= stripTime(new Date()) &&
         stripTime(reservation.checkOut) > stripTime(new Date())) {
         filtered.push(reservation);
       }
