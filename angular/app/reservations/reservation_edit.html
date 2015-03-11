@@ -15,17 +15,17 @@ out min={{outMinDate}} max={{outMaxDate}}
           <div layout layout-sm="column">
             <md-input-container flex>
               <label>Check In Date</label>
-              <input type="date" ng-model="reservation.checkIn" min="{{inMinDate}}" max="{{inMaxDate}}" ng-change="inDateChange()" required>
+              <input type="date" ng-model="reservation.checkIn" min="{{inMinDate}}" max="{{inMaxDate}}" ng-change="inDateChange()" required ng-disabled="hasCheckedIn()">
             </md-input-container>
             <md-input-container flex>
               <label>Check Out Date</label>
-              <input type="date" ng-model="reservation.checkOut"  min="{{outMinDate}}" max="{{outMaxDate}}" ng-change="outDateChange()" required>
+              <input type="date" ng-model="reservation.checkOut"  min="{{outMinDate}}" max="{{outMaxDate}}" ng-change="outDateChange()" required ng-disabled="hasCheckedOut()">
             </md-input-container>
           </div>
           <div layout layout-sm="column">
             <md-input-container>
               <label>Rate Per Night</label>
-              <input type="number" min="0" max="500" ng-model="reservation.rate" required>
+              <input type="number" min="0" max="500" ng-model="reservation.rate" required ng-disabled="hasCheckedOut()">
             </md-input-container>
             <div layout="column">
               <label>Total Stay:</label>
@@ -68,10 +68,11 @@ out min={{outMinDate}} max={{outMaxDate}}
           </div>
           <div layout="row">
             <md-button class="md-raised md-primary" ng-show="isNewReservation" ng-click="create($event)" flex>create</md-button>
-            <md-button class="md-raised md-primary" ng-show="!isNewReservation" ng-click="update($event)" flex>update</md-button>
-            <md-button class="md-raised md-primary" ng-show="isChecking()" ng-click="update($event)" flex>Check In</md-button>
-            <md-button class="md-raised md-primary" ng-show="isCheckout()" ng-click="update($event)" flex>Check Out</md-button>
-            <md-button class="md-raised" ng-click="goBack()" flex="30">back</md-button>
+            <md-button class="md-raised md-primary" ng-show="!isNewReservation && !hasCheckedOut()" ng-click="update($event)" flex>update</md-button>
+            <md-button class="md-raised md-primary" ng-show="isChecking()" ng-click="checkIn($event)" flex>Check In</md-button>
+            <md-button class="md-raised md-primary" ng-show="isCheckout()" ng-click="checkOut($event)" flex>Check Out</md-button>
+            <md-button class="md-raised" ng-click="cancel($event)" ng-show="!isNewReservation && !hasCheckedOut()" flex="20">cancel</md-button>
+            <md-button class="md-raised" ng-click="goBack()" flex="hasCheckedOut() ? 100 : 20">back</md-button>
           </div>
         </div>
       </form>

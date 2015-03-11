@@ -2,6 +2,9 @@
     <md-content>
       Search: <input ng-model="searchText">
     </md-content>
+    <md-content>
+      <md-button ng-click="cancel()">back</md-button>
+    </md-content>
     <md-content styd>
       <md-card ng-repeat="guest in guests | filter:searchText" ng-click="select(guest)">
         <div layout layout-sm="column">
@@ -47,8 +50,5 @@
           <h3>{{guest.comment}}</h3>
         </div>
       </md-card>
-    </md-content>
-    <md-content>
-      <md-button ng-click="cancel()">back</md-button>
     </md-content>
 </md-dialog>

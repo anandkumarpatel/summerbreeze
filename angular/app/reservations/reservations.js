@@ -36,6 +36,7 @@ angular.module('myApp.reservations', ['ngRoute'])
     };
 
     $scope.isNewReservation = false;
+
     if ($routeParams.id) {
       $scope.reservation = angular.copy(reservations.getById($routeParams.id));
     } else {
@@ -55,6 +56,20 @@ angular.module('myApp.reservations', ['ngRoute'])
       };
     }
 
+    var d_inMaxDate = moment().startOf('day').add(10, 'year').subtract(1, 'day').format("YYYY-MM-DD");
+    var d_outMinDate = moment().startOf('day').add(1, 'day').format("YYYY-MM-DD");
+
+    $scope.inMinDate = $scope.isNewReservation ?
+      moment().startOf('day').format("YYYY-MM-DD") :
+      moment($scope.reservation.checkIn).startOf('day').format("YYYY-MM-DD");
+
+    $scope.inMaxDate = d_inMaxDate;
+
+    $scope.outMinDate = d_outMinDate;
+    $scope.outMaxDate = moment().startOf('day').add(10, 'year').format("YYYY-MM-DD");
+    $scope.daysStaying = 1;
+
+
     function validate(ev) {
       if ($scope.reservationForm.$valid) {
         if ($scope.reservation.rooms.length <= 0) {
@@ -71,6 +86,14 @@ angular.module('myApp.reservations', ['ngRoute'])
       return false;
     }
 
+    $scope.hasCheckedIn = function() {
+      return $scope.reservation.status > 1;
+    };
+
+    $scope.hasCheckedOut = function() {
+      return $scope.reservation.status > 2;
+    };
+
     $scope.isChecking = function() {
       return !$scope.isNewReservation && $scope.reservation.status == 1;
     };
@@ -78,11 +101,45 @@ angular.module('myApp.reservations', ['ngRoute'])
     $scope.isCheckout = function() {
       return !$scope.isNewReservation && $scope.reservation.status == 2;
     };
+
     $scope.update = function(ev) {
       if (validate(ev)) {
         reservations.update(angular.copy($scope.reservation));
         $location.path('/main');
       }
+    };
+
+     $scope.checkIn = function(ev) {
+      var confirm = $mdDialog.confirm()
+        .title('Would you like to check in guest?')
+        .ok('check in')
+        .cancel('go back')
+        .targetEvent(ev);
+      $mdDialog.show(confirm).then(function() {
+        reservations.checkIn($scope.reservation);
+      });
+    };
+
+    $scope.checkOut = function(ev) {
+      var confirm = $mdDialog.confirm()
+        .title('Would you like to check out guest?')
+        .ok('check out')
+        .cancel('go back')
+        .targetEvent(ev);
+      $mdDialog.show(confirm).then(function() {
+        reservations.checkOut($scope.reservation);
+      });
+    };
+
+    $scope.cancel = function(ev) {
+      var confirm = $mdDialog.confirm()
+        .title('Would you like to cancel reservation?')
+        .ok('yes')
+        .cancel('no')
+        .targetEvent(ev);
+      $mdDialog.show(confirm).then(function() {
+        reservations.cancel($scope.reservation);
+      });
     };
 
     $scope.create = function(ev) {
@@ -101,16 +158,6 @@ angular.module('myApp.reservations', ['ngRoute'])
         .targetEvent(ev)
       );
     }
-
-    var d_inMaxDate = moment().startOf('day').add(1, 'year').subtract(1, 'day').format("YYYY-MM-DD");
-    var d_outMinDate = moment().startOf('day').add(1, 'day').format("YYYY-MM-DD");
-
-    $scope.inMinDate = moment().startOf('day').format("YYYY-MM-DD");
-    $scope.inMaxDate = d_inMaxDate;
-
-    $scope.outMinDate = d_outMinDate;
-    $scope.outMaxDate = moment().startOf('day').add(1, 'year').format("YYYY-MM-DD");
-    $scope.daysStaying = 1;
 
     function updateDays() {
       if (angular.isDate($scope.reservation.checkIn) &&
@@ -215,7 +262,7 @@ angular.module('myApp.reservations', ['ngRoute'])
     _id: 0
   }, {
     checkIn: new Date('1/2/1989'),
-    checkOut: new Date('1/10/2222'),
+    checkOut: new Date('1/10/2016'),
     rate: 111.21,
     paymentType: 1,
     status: 2,
@@ -237,7 +284,7 @@ angular.module('myApp.reservations', ['ngRoute'])
     _id: 2
   }, {
     checkIn: angular.copy(today),
-    checkOut: new Date('1/9/2999'),
+    checkOut: new Date('1/9/2017'),
     rate: 12.3,
     paymentType: 1,
     status: 1,
@@ -252,6 +299,7 @@ angular.module('myApp.reservations', ['ngRoute'])
       reservation.status = newState;
       Rs[reservation._id].status = newState;
   }
+
   return {
     getAll: function() {
       return Rs;
