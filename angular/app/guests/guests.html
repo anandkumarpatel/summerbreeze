@@ -1,9 +1,12 @@
-<div layout="column">
+<div layout="column"  style="height: 95vh;">
+  <div layout="row">
+    <md-content>
+      Search: <input ng-model="searchText">
+    </md-content>
+    <md-button class="md-raised md-primary" ng-click="goBack()" flex>back</md-button>
+  </div>
   <md-content>
-    Search: <input ng-model="searchText">
-  </md-content>
-  <md-content styd>
-    <md-card ng-repeat="guest in guests | filter:searchText" ng-click="select(guest)">
+    <md-card ng-repeat="guest in guests | filter:searchText" ng-click="go(guest._id)">
       <div layout layout-sm="column">
         <div class="md-tile-content" flex>
           <p>First Name</p>
@@ -47,8 +50,5 @@
         <h3>{{guest.comment}}</h3>
       </div>
     </md-card>
-  </md-content>
-  <md-content>
-    <md-button ng-click="hide()">back</md-button>
   </md-content>
 </div>

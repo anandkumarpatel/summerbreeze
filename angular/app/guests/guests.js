@@ -8,25 +8,50 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
     controller: 'GuestsCtrl'
   })
   .when('/guests/:id', {
-    templateUrl: 'guests/guest_edit.html',
+    templateUrl: 'guests/edit.html',
     controller: 'GuestsIdCtrl'
   });
 }])
 
-.controller('GuestsCtrl', ['$scope', '$location', 'guests', function($scope, $location, guests) {
+.controller('GuestsCtrl', ['$scope', '$location', '$window', 'guests',
+  function($scope, $location, $window, guests) {
     $scope.guests = guests.getAll();
     $scope.go = function (path) {
       $location.path('/guests/'+path);
     };
+    $scope.goBack = function() {
+      $window.history.back();
+    };
 }])
 
 .controller('GuestsIdCtrl',
-  ['$scope', '$routeParams', '$location', '$mdDialog', 'guests',
-  function($scope, $routeParams, $location, $mdDialog, guests) {
+  ['$scope', '$routeParams', '$window', '$mdDialog', 'guests',
+  function($scope, $routeParams, $window, $mdDialog, guests) {
     $scope.guest = angular.copy(guests.getById($routeParams.id));
 
-    $scope.save = function(guest) {
-      guests.saveById(guest);
+    function validate(ev) {
+      if ($scope.guestForm.$valid) {
+        return true;
+      }
+      return false;
+    }
+
+    $scope.update = function(ev) {
+      if (validate(ev)) {
+        var confirm = $mdDialog.confirm()
+        .title('update guest?')
+        .ok('yes')
+        .cancel('go back')
+        .targetEvent(ev);
+        $mdDialog.show(confirm).then(function() {
+          guests.update($scope.guest);
+          $window.history.back();
+        });
+      }
+    };
+
+    $scope.goBack = function() {
+      $window.history.back();
     };
 }])
 
@@ -38,6 +63,7 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
     if (!angular.isDefined($scope.guest)) {
       $scope.guest = {};
     }
+
     $scope.save = function() {
       if ($scope.guestForm.$valid) {
         commitGuest($scope.guest);
@@ -119,8 +145,11 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
     getById: function(id) {
       return Gs[id];
     },
-    saveById: function(data) {
-      Gs[data._id] = data;
+    saveById: function(guest) {
+      Gs[guest._id] = guest;
+    },
+    update: function(guest) {
+      Gs[guest._id] = guest;
     }
   };
 });

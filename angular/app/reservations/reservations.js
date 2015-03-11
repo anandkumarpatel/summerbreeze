@@ -104,7 +104,14 @@ angular.module('myApp.reservations', ['ngRoute'])
 
     $scope.update = function(ev) {
       if (validate(ev)) {
-        reservations.update(angular.copy($scope.reservation));
+        var confirm = $mdDialog.confirm()
+        .title('update reservation?')
+        .ok('yes')
+        .cancel('go back')
+        .targetEvent(ev);
+        $mdDialog.show(confirm).then(function() {
+          reservations.update(angular.copy($scope.reservation));
+        });
         $location.path('/main');
       }
     };
@@ -193,7 +200,7 @@ angular.module('myApp.reservations', ['ngRoute'])
     $scope.addGuest = function(ev) {
       $mdDialog.show({
         controller: 'GuestsNewCtrl',
-        templateUrl: 'guests/guest_edit.html',
+        templateUrl: 'guests/dialog_edit.html',
         targetEvent: ev,
         locals: { guest: {}, commitGuest: $scope.commitGuest},
       });
@@ -202,7 +209,7 @@ angular.module('myApp.reservations', ['ngRoute'])
     $scope.updateGuest = function(ev, guest) {
       $mdDialog.show({
         controller: 'GuestsNewCtrl',
-        templateUrl: 'guests/guest_edit.html',
+        templateUrl: 'guests/dialog_edit.html',
         targetEvent: ev,
         locals: { guest: guest, commitGuest: $scope.commitGuest},
       })
