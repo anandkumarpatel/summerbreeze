@@ -67,7 +67,10 @@ out min={{outMinDate}} max={{outMaxDate}}
             </md-input-container >
           </div>
           <div layout="row">
-            <md-button class="md-raised md-primary" ng-click="save($event)" flex="70">SAVE</md-button>
+            <md-button class="md-raised md-primary" ng-show="isNewReservation" ng-click="create($event)" flex>create</md-button>
+            <md-button class="md-raised md-primary" ng-show="!isNewReservation" ng-click="update($event)" flex>update</md-button>
+            <md-button class="md-raised md-primary" ng-show="isChecking()" ng-click="update($event)" flex>Check In</md-button>
+            <md-button class="md-raised md-primary" ng-show="isCheckout()" ng-click="update($event)" flex>Check Out</md-button>
             <md-button class="md-raised" ng-click="goBack()" flex="30">back</md-button>
           </div>
         </div>

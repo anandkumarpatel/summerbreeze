@@ -46,31 +46,49 @@ angular.module('myApp.reservations', ['ngRoute'])
         checkOut: null,
         rate: 0,
         paymentType: 1,
-        status: 2,
+        status: 1,
         roomsRequested: 0,
         comment: '',
         guests: [],
         rooms: [],
-        _id: 0
+        _id: Math.random()
       };
     }
 
-    $scope.save = function(ev) {
+    function validate(ev) {
       if ($scope.reservationForm.$valid) {
         if ($scope.reservation.rooms.length <= 0) {
-          return showAlert(ev, 'room');
+          showAlert(ev, 'room');
+          return false;
         }
         if ($scope.reservation.guests.length <= 0) {
-          return showAlert(ev, 'guest');
+          showAlert(ev, 'guest');
+          return false;
         }
-        if ($scope.isNewReservation) {
-          reservations.create(angular.copy($scope.reservation));
-        } else {
-          reservations.update(angular.copy($scope.reservation));
-        }
+        return true;
+      }
+      showAlert(ev, 'check out date');
+      return false;
+    }
+
+    $scope.isChecking = function() {
+      return !$scope.isNewReservation && $scope.reservation.status == 1;
+    };
+
+    $scope.isCheckout = function() {
+      return !$scope.isNewReservation && $scope.reservation.status == 2;
+    };
+    $scope.update = function(ev) {
+      if (validate(ev)) {
+        reservations.update(angular.copy($scope.reservation));
         $location.path('/main');
-      } else {
-        return showAlert(ev, 'check out date');
+      }
+    };
+
+    $scope.create = function(ev) {
+      if (validate(ev)) {
+        reservations.create(angular.copy($scope.reservation));
+        $location.path('/main');
       }
     };
 
