@@ -145,9 +145,6 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
     getById: function(id) {
       return Gs[id];
     },
-    saveById: function(guest) {
-      Gs[guest._id] = guest;
-    },
     update: function(guest) {
       Gs[guest._id] = guest;
     }

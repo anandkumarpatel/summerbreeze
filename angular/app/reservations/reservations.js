@@ -106,21 +106,21 @@ angular.module('myApp.reservations', ['ngRoute'])
       if (validate(ev)) {
         var confirm = $mdDialog.confirm()
         .title('update reservation?')
-        .ok('yes')
-        .cancel('go back')
+        .ok(' yes ')
+        .cancel('back')
         .targetEvent(ev);
         $mdDialog.show(confirm).then(function() {
           reservations.update(angular.copy($scope.reservation));
+          $scope.goBack();
         });
-        $location.path('/main');
       }
     };
 
      $scope.checkIn = function(ev) {
       var confirm = $mdDialog.confirm()
         .title('Would you like to check in guest?')
-        .ok('check in')
-        .cancel('go back')
+        .ok(' che ck in')
+        .cancel('back')
         .targetEvent(ev);
       $mdDialog.show(confirm).then(function() {
         reservations.checkIn($scope.reservation);
@@ -130,8 +130,8 @@ angular.module('myApp.reservations', ['ngRoute'])
     $scope.checkOut = function(ev) {
       var confirm = $mdDialog.confirm()
         .title('Would you like to check out guest?')
-        .ok('check out')
-        .cancel('go back')
+        .ok(' che ck out')
+        .cancel('back')
         .targetEvent(ev);
       $mdDialog.show(confirm).then(function() {
         reservations.checkOut($scope.reservation);
