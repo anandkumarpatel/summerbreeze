@@ -2,7 +2,7 @@
 
 angular.module('myApp.reservations', ['ngRoute'])
 
-.constant("moment", moment)
+.constant("moment")
 
 .config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/reservations', {
