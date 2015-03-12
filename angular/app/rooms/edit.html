@@ -1,5 +1,5 @@
 <div layout="column" layout-align="center center">
-  <md-card class='normalCard'>
+  <md-card>
     <md-content class="md-padding">
       <form name="roomForm">
         <div layout="row">
@@ -14,13 +14,13 @@
           <div class="md-tile-content" flex>
             <p>beds: {{room.beds}}</p>
             <md-radio-group ng-model="room.beds">
-              <md-radio-button ng-repeat="opt in beds" ng-value="opt"> {{opt | uppercase}} </md-radio-button>
+              <md-radio-button ng-repeat="type in bedTypes" ng-value="type"> {{type | f_bedTypes}} </md-radio-button>
             </md-radio-group>
           </div>
           <div class="md-tile-content" flex>
             <p>Status: {{room.status}}</p>
             <md-radio-group ng-model="room.status">
-              <md-radio-button ng-repeat="opt in status" ng-value="opt"> {{opt | uppercase}} </md-radio-button>
+              <md-radio-button ng-repeat="status in status" ng-value="status"> {{status | f_status}} </md-radio-button>
             </md-radio-group>
           </div>
         </div>
@@ -32,6 +32,9 @@
         </div>
       </form>
     </md-content>
+    <div layout="row">
+      <md-button class="md-raised md-primary" ng-click="update()" flex>SAVE</md-button>
+      <md-button class="md-raised" ng-click="goBack()" flex>Back</md-button>
+    </div>
   </md-card>
-  <md-button class="md-raised md-primary" ng-click="save(guest)">SAVE</md-button>
 </div>

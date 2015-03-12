@@ -232,7 +232,7 @@ angular.module('myApp.reservations', ['ngRoute'])
       }
       $mdDialog.show({
         controller: 'RoomSelection',
-        templateUrl: 'rooms/rooms.html',
+        templateUrl: 'rooms/dialog_list.html',
         targetEvent: ev,
         locals: {
           checkIn: $scope.reservation.checkIn,

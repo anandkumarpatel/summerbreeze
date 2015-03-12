@@ -4,31 +4,57 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
 
 .config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/rooms', {
-    templateUrl: 'rooms/rooms.html',
+    templateUrl: 'rooms/list.html',
     controller: 'RoomsCtrl'
   })
   .when('/rooms/:id', {
-    templateUrl: 'rooms/room_edit.html',
+    templateUrl: 'rooms/edit.html',
     controller: 'RoomsIdCtrl'
   });
 }])
 
-.controller('RoomsCtrl', ['$scope', '$location', 'rooms', function($scope, $location, rooms) {
+.controller('RoomsCtrl', ['$scope', '$location', '$window', 'rooms',
+  function($scope, $location, $window, rooms) {
     $scope.rooms = rooms.getAll();
     $scope.go = function (path) {
       $location.path('/rooms/'+path);
     };
+    $scope.goBack = function() {
+      $window.history.back();
+    };
 }])
 
 .controller('RoomsIdCtrl',
-  ['$scope', '$routeParams', '$location', 'rooms',
-  function($scope, $routeParams, $location, rooms) {
-    $scope.room = rooms.getById($routeParams.id);
-    $scope.beds = rooms.beds;
-    $scope.status = rooms.status;
+  ['$scope', '$routeParams', '$window', '$mdDialog', 'rooms',
+  function($scope, $routeParams, $window, $mdDialog, rooms) {
+    $scope.room = angular.copy(rooms.getById($routeParams.id));
 
-    $scope.save = function(room) {
-      rooms.saveById(room);
+    function validate(ev) {
+      if ($scope.roomForm.$valid) {
+        return true;
+      }
+      return false;
+    }
+
+    $scope.goBack = function() {
+      $window.history.back();
+    };
+
+    $scope.bedTypes = [1, 2];
+    $scope.status = [1, 2];
+
+    $scope.update = function(ev) {
+      if (validate(ev)) {
+        var confirm = $mdDialog.confirm()
+        .title('update room?')
+        .ok('yes')
+        .cancel('go back')
+        .targetEvent(ev);
+        $mdDialog.show(confirm).then(function() {
+          rooms.update($scope.room);
+          $window.history.back();
+        });
+      }
     };
 }])
 
@@ -39,7 +65,6 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
 
     $scope.save = function(room) {
       if ($scope.roomForm.$valid) {
-        rooms.saveById(room);
         $mdDialog.hide(room);
       }
     };
@@ -49,14 +74,35 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
     $scope.cancel = function() {
       $mdDialog.cancel();
     };
-
 }])
 
+.filter('f_bedTypes', function () {
+  var types = {
+    1: 'single',
+    2: 'double'
+  };
+  return function (item) {
+    return types[item];
+  };
+})
+
+.filter('f_status', function () {
+  var status = {
+    1: 'available',
+    2: 'dirty'
+  };
+  return function (item) {
+    return status[item];
+  };
+})
+
+.filter('f_smoking', function () {
+  return function (item) {
+    return item ? 'smoking' : 'non-smoking';
+  };
+})
+
 .factory('rooms', function() {
-  var beds = [ 'single','double'];
-
-  var status = ['avalible', 'dirty'];
-
   var Rs = [{
     number: 0,
     smoking: false,
@@ -92,10 +138,8 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
     getById: function(number) {
       return Rs[number];
     },
-    saveById: function(data) {
+    update: function(data) {
       Rs[data.number] = data;
-    },
-    status: status,
-    beds: beds
+    }
   };
 });
