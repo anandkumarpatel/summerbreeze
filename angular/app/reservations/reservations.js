@@ -1,8 +1,5 @@
 'use strict';
-
-angular.module('myApp.reservations', ['ngRoute'])
-
-.constant("moment")
+angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
 
 .config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/reservations', {
@@ -29,8 +26,8 @@ angular.module('myApp.reservations', ['ngRoute'])
 }])
 // use this for both new and edit
 .controller('ReservationCtrl',
-  ['$scope', '$routeParams', '$location', '$mdDialog', '$window', 'reservations', 'moment',
-  function($scope, $routeParams, $location, $mdDialog, $window, reservations, moment) {
+  ['$scope', '$routeParams', '$location', '$mdDialog', '$window', '$moment', 'reservations',
+  function($scope, $routeParams, $location, $mdDialog, $window, $moment, reservations) {
     $scope.goBack = function() {
       $window.history.back();
     };
@@ -43,7 +40,7 @@ angular.module('myApp.reservations', ['ngRoute'])
       // if new set to array
       $scope.isNewReservation = true;
       $scope.reservation = {
-        checkIn: new Date(moment().startOf('day').valueOf()),
+        checkIn: new Date($moment().startOf('day').valueOf()),
         checkOut: null,
         rate: 0,
         paymentType: 1,
@@ -56,17 +53,17 @@ angular.module('myApp.reservations', ['ngRoute'])
       };
     }
 
-    var d_inMaxDate = moment().startOf('day').add(10, 'year').subtract(1, 'day').format("YYYY-MM-DD");
-    var d_outMinDate = moment().startOf('day').add(1, 'day').format("YYYY-MM-DD");
+    var d_inMaxDate = $moment().startOf('day').add(10, 'year').subtract(1, 'day').format("YYYY-MM-DD");
+    var d_outMinDate = $moment().startOf('day').add(1, 'day').format("YYYY-MM-DD");
 
     $scope.inMinDate = $scope.isNewReservation ?
-      moment().startOf('day').format("YYYY-MM-DD") :
-      moment($scope.reservation.checkIn).startOf('day').format("YYYY-MM-DD");
+      $moment().startOf('day').format("YYYY-MM-DD") :
+      $moment($scope.reservation.checkIn).startOf('day').format("YYYY-MM-DD");
 
     $scope.inMaxDate = d_inMaxDate;
 
     $scope.outMinDate = d_outMinDate;
-    $scope.outMaxDate = moment().startOf('day').add(10, 'year').format("YYYY-MM-DD");
+    $scope.outMaxDate = $moment().startOf('day').add(10, 'year').format("YYYY-MM-DD");
     $scope.daysStaying = 1;
 
 
@@ -169,14 +166,14 @@ angular.module('myApp.reservations', ['ngRoute'])
     function updateDays() {
       if (angular.isDate($scope.reservation.checkIn) &&
         angular.isDate($scope.reservation.checkOut)) {
-        $scope.daysStaying = moment($scope.reservation.checkOut).startOf('day')
-          .diff(moment($scope.reservation.checkIn).startOf('day'), 'days');
+        $scope.daysStaying = $moment($scope.reservation.checkOut).startOf('day')
+          .diff($moment($scope.reservation.checkIn).startOf('day'), 'days');
       }
     }
 
     $scope.inDateChange = function () {
       $scope.outMinDate = angular.isDate($scope.reservation.checkIn) ?
-        moment($scope.reservation.checkIn).add(1, 'day').format("YYYY-MM-DD") :
+        $moment($scope.reservation.checkIn).add(1, 'day').format("YYYY-MM-DD") :
         d_outMinDate;
       updateDays();
     };
@@ -184,7 +181,7 @@ angular.module('myApp.reservations', ['ngRoute'])
 
     $scope.outDateChange = function () {
       $scope.inMaxDate = angular.isDate($scope.reservation.checkOut) ?
-        moment($scope.reservation.checkOut).subtract(1, 'day').format("YYYY-MM-DD") :
+        $moment($scope.reservation.checkOut).subtract(1, 'day').format("YYYY-MM-DD") :
         d_inMaxDate;
       updateDays();
     };

@@ -10,12 +10,24 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
   .when('/rooms/:id', {
     templateUrl: 'rooms/edit.html',
     controller: 'RoomsIdCtrl'
+  })
+  .when('/admin/room/create', {
+    templateUrl: 'rooms/edit.html',
+    controller: 'RoomsIdCtrl'
   });
 }])
 
-.controller('RoomsCtrl', ['$scope', '$location', '$window', 'rooms',
-  function($scope, $location, $window, rooms) {
-    $scope.rooms = rooms.getAll();
+.controller('RoomsCtrl', ['$scope', '$location', '$window', '$mdDialog', 'rooms',
+  function($scope, $location, $window, $mdDialog, rooms) {
+    rooms.getAll()
+      .success(function(rooms) {
+        $scope.rooms = rooms;
+      })
+     .error(function(err){
+        var message = err && err.stack || 'something went wrong';
+        $mdDialog.show($mdDialog.alert().title(message).ok('OK').targetEvent(null));
+      });
+
     $scope.go = function (path) {
       $location.path('/rooms/'+path);
     };
@@ -25,9 +37,15 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
 }])
 
 .controller('RoomsIdCtrl',
-  ['$scope', '$routeParams', '$window', '$mdDialog', 'rooms',
-  function($scope, $routeParams, $window, $mdDialog, rooms) {
-    $scope.room = angular.copy(rooms.getById($routeParams.id));
+  ['$scope', '$routeParams', '$window', '$mdDialog', '$location', 'rooms',
+  function($scope, $routeParams, $window, $mdDialog, $location, rooms) {
+    $scope.isNew = !$routeParams.id;
+
+    if($scope.isNew) {
+      $scope.room = {};
+    } else {
+      $scope.room = angular.copy(rooms.getById($scope.isNew));
+    }
 
     function validate(ev) {
       if ($scope.roomForm.$valid) {
@@ -43,18 +61,50 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
     $scope.bedTypes = [1, 2];
     $scope.status = [1, 2];
 
+    function handleError (ev, res) {
+      if (!res.errors) { return; }
+      console.log('xanand', res);
+      var message = '';
+      Object.keys(res.errors).forEach(function(item) {
+        message += 'item:'+res.errors[item].message+'\n';
+      });
+      $mdDialog.show(
+        $mdDialog.alert()
+          .title(res.message)
+          .content(message)
+          .ok('OK')
+          .targetEvent(ev)
+      );
+    }
+
     $scope.update = function(ev) {
-      if (validate(ev)) {
-        var confirm = $mdDialog.confirm()
+      if (!validate(ev)) {
+        return $mdDialog.show($mdDialog.alert().title('missing something').ok('OK').targetEvent(ev));
+      }
+      var confirm = $mdDialog.confirm()
         .title('update room?')
         .ok('yes')
         .cancel('go back')
         .targetEvent(ev);
-        $mdDialog.show(confirm).then(function() {
-          rooms.update($scope.room);
-          $window.history.back();
-        });
-      }
+      $mdDialog.show(confirm).then(function() {
+        if ($scope.isNew) {
+          rooms.create($scope.room)
+            .success(function(rooms){
+            $location.path('/rooms/');
+            })
+            .error(function(err){
+              handleError(ev, err);
+            });
+        } else {
+          rooms.update($scope.room)
+            .success(function(rooms){
+              $window.history.back();
+            })
+            .error(function(err){
+              handleError(ev, err);
+            });
+        }
+      });
     };
 }])
 
@@ -102,7 +152,8 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
   };
 })
 
-.factory('rooms', function() {
+.factory('rooms', ['$http', function($http) {
+  var urlBase = 'http://localhost:8080/rooms/';
   var Rs = [{
     number: 0,
     smoking: false,
@@ -128,9 +179,10 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
     status: 2,
     comment: 'upstairs'
   }];
+
   return {
     getAll: function() {
-      return Rs;
+      return $http.get(urlBase);
     },
     getAvailable: function(checkIn, checkOut) {
       return Rs;
@@ -140,6 +192,9 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
     },
     update: function(data) {
       Rs[data.number] = data;
+    },
+    create: function(data) {
+      return $http.post(urlBase, data);
     }
   };
-});
+}]);

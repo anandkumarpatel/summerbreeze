@@ -2,25 +2,30 @@
   <md-card>
     <md-content class="md-padding">
       <form name="roomForm">
-        <div layout="row">
-          <div class="md-tile-content" flex>
+        <div layout layout-sm="column">
+          <div class="md-tile-content" ng-show="!isNew" flex>
             <p>Room Number</p>
             <h3>{{room.number}}</h3>
           </div>
+          <md-input-container ng-show="isNew">
+            <label>Room Number</label>
+            <input type="number" min="0" max="500" ng-model="room.number" required>
+          </md-input-container>
+
           <div class="md-tile-content" flex>
             <p>Smoking</p>
-            <md-checkbox ng-model="room.smoking"></md-checkbox>
+            <md-checkbox ng-model="room.smoking" aria-label="smoking"></md-checkbox>
           </div>
           <div class="md-tile-content" flex>
             <p>beds: {{room.beds}}</p>
             <md-radio-group ng-model="room.beds">
-              <md-radio-button ng-repeat="type in bedTypes" ng-value="type"> {{type | f_bedTypes}} </md-radio-button>
+              <md-radio-button ng-repeat="type in bedTypes" ng-value="type" required> {{type | f_bedTypes}} </md-radio-button>
             </md-radio-group>
           </div>
           <div class="md-tile-content" flex>
             <p>Status: {{room.status}}</p>
             <md-radio-group ng-model="room.status">
-              <md-radio-button ng-repeat="status in status" ng-value="status"> {{status | f_status}} </md-radio-button>
+              <md-radio-button ng-repeat="status in status" ng-value="status" required> {{status | f_status}} </md-radio-button>
             </md-radio-group>
           </div>
         </div>

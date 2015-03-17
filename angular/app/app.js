@@ -8,5 +8,6 @@ angular.module('myApp', [
   'myApp.reservations',
   'myApp.rooms',
   'myApp.guests',
-  'myApp.version'
+  'myApp.version',
+  'angular-momentjs'
 ]);
