@@ -7,7 +7,7 @@
   </div>
   <div layout="column" layout-align="center center">
     <md-content>
-      <md-card ng-click="go(room.number)" ng-repeat="room in rooms | filter:searchText">
+      <md-card ng-click="go(room._id)" ng-repeat="room in rooms | filter:searchText">
         <div layout="row">
           <div class="md-tile-content" flex>
             <p>Room Number</p>

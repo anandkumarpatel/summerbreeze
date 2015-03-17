@@ -233,7 +233,8 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
         targetEvent: ev,
         locals: {
           checkIn: $scope.reservation.checkIn,
-          checkOut: $scope.reservation.checkOut
+          checkOut: $scope.reservation.checkOut,
+          currentRooms: $scope.reservation.rooms
          }
       })
       .then(function(room) {

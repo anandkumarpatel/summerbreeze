@@ -9,24 +9,23 @@
           </div>
           <md-input-container ng-show="isNew">
             <label>Room Number</label>
-            <input type="number" min="0" max="500" ng-model="room.number" required>
+            <input type="number" min="0" max="500" ng-model="room.number" ng-required="isNew">
           </md-input-container>
-
           <div class="md-tile-content" flex>
-            <p>Smoking</p>
-            <md-checkbox ng-model="room.smoking" aria-label="smoking"></md-checkbox>
-          </div>
-          <div class="md-tile-content" flex>
-            <p>beds: {{room.beds}}</p>
+            <p>beds:</p>
             <md-radio-group ng-model="room.beds">
               <md-radio-button ng-repeat="type in bedTypes" ng-value="type" required> {{type | f_bedTypes}} </md-radio-button>
             </md-radio-group>
           </div>
           <div class="md-tile-content" flex>
-            <p>Status: {{room.status}}</p>
+            <p>Status</p>
             <md-radio-group ng-model="room.status">
               <md-radio-button ng-repeat="status in status" ng-value="status" required> {{status | f_status}} </md-radio-button>
             </md-radio-group>
+          </div>
+          <div class="md-tile-content" flex>
+            <p>Smoking</p>
+            <md-checkbox ng-model="room.smoking" aria-label="smoking"></md-checkbox>
           </div>
         </div>
         <div layout="row">

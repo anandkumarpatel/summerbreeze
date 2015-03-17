@@ -23,7 +23,7 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
       .success(function(rooms) {
         $scope.rooms = rooms;
       })
-     .error(function(err){
+     .error(function(err) {
         var message = err && err.stack || 'something went wrong';
         $mdDialog.show($mdDialog.alert().title(message).ok('OK').targetEvent(null));
       });
@@ -44,7 +44,13 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
     if($scope.isNew) {
       $scope.room = {};
     } else {
-      $scope.room = angular.copy(rooms.getById($scope.isNew));
+      $scope.room = rooms.getById($routeParams.id)
+        .success(function(room) {
+          $scope.room = room[0];
+        })
+        .error(function(err) {
+          handleError(null, err);
+        });
     }
 
     function validate(ev) {
@@ -63,7 +69,7 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
 
     function handleError (ev, res) {
       if (!res.errors) { return; }
-      console.log('xanand', res);
+
       var message = '';
       Object.keys(res.errors).forEach(function(item) {
         message += 'item:'+res.errors[item].message+'\n';
@@ -89,18 +95,18 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
       $mdDialog.show(confirm).then(function() {
         if ($scope.isNew) {
           rooms.create($scope.room)
-            .success(function(rooms){
-            $location.path('/rooms/');
+            .success(function(rooms) {
+              $location.path('/rooms/');
             })
-            .error(function(err){
+            .error(function(err) {
               handleError(ev, err);
             });
         } else {
           rooms.update($scope.room)
-            .success(function(rooms){
+            .success(function(rooms) {
               $window.history.back();
             })
-            .error(function(err){
+            .error(function(err) {
               handleError(ev, err);
             });
         }
@@ -109,9 +115,24 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
 }])
 
 .controller('RoomSelection',
-  ['$scope', '$mdDialog', 'rooms', 'checkIn', 'checkOut',
-  function($scope, $mdDialog, rooms, checkIn, checkOut) {
-    $scope.rooms = rooms.getAvailable(checkIn, checkOut);
+  ['$scope', '$mdDialog', 'rooms', 'checkIn', 'checkOut', 'currentRooms',
+  function($scope, $mdDialog, rooms, checkIn, checkOut, currentRooms) {
+    rooms.getAvailable(checkIn, checkOut)
+      .success(function(rooms) {
+        if (currentRooms.length === 0) {
+          $scope.rooms = rooms;
+          return;
+        }
+        // filter out currently selected rooms
+        $scope.rooms = rooms.filter(function(aRoom) {
+          return !currentRooms.some(function(cRoom, index, cb) {
+            return cRoom._id === aRoom._id;
+          });
+        });
+      })
+      .error(function(err) {
+        $scope.rooms = [];
+      });
 
     $scope.save = function(room) {
       if ($scope.roomForm.$valid) {
@@ -154,6 +175,7 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
 
 .factory('rooms', ['$http', function($http) {
   var urlBase = 'http://localhost:8080/rooms/';
+  var availabilityBase = 'http://localhost:8080/availability/';
   var Rs = [{
     number: 0,
     smoking: false,
@@ -185,16 +207,45 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
       return $http.get(urlBase);
     },
     getAvailable: function(checkIn, checkOut) {
-      return Rs;
+      return $http.get(availabilityBase, {
+        params: {
+          checkOut: checkOut.getTime(),
+          checkIn: checkIn.getTime()
+        }
+      });
     },
-    getById: function(number) {
-      return Rs[number];
+    getById: function(id) {
+      return $http.get(urlBase, {
+        params: {
+          _id: id
+        }
+      });
     },
-    update: function(data) {
-      Rs[data.number] = data;
+    update: function(room) {
+      return $http.post(urlBase+room._id, room);
     },
     create: function(data) {
       return $http.post(urlBase, data);
     }
   };
+
+  //   return {
+  //   getAll: function() {
+  //     return $http.get(urlBase);
+  //   },
+  //   getAvailable: function(checkIn, checkOut) {
+  //     return Rs;
+  //   },
+  //   getById: function(number) {
+  //     return Rs[number];
+  //   },
+  //   update: function(data) {
+  //     return $http.post(urlBase, data);
+  //     Rs[data.number] = data;
+  //   },
+  //   create: function(data) {
+  //     return $http.post(urlBase, data);
+  //   }
+  // };
+
 }]);

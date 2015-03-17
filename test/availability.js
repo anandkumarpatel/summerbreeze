@@ -158,6 +158,9 @@ describe('Availablility', function() {
         }
         body = JSON.parse(body);
         expect(body.length).to.equal(4);
+        body = body.map(function (val) {
+          return val._id;
+        })
         expect(body).to.contain(ctx.r12.rooms[0]);
         expect(body).to.contain(ctx.r13.rooms[0]);
         expect(body).to.contain(ctx.r23.rooms[0]);
