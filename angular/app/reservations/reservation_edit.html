@@ -46,19 +46,31 @@ out min={{outMinDate}} max={{outMaxDate}}
           </div>
           <div layout layout-sm="column">
             <p>Guest:</p>
-            <div layout="row" ng-repeat="guest in reservation.guests" >
-              <md-button class="md-raised" ng-click="updateGuest($event, guest)" ng-disabled="hasCheckedOut()">{{guest.firstName}}</md-button>
-              <md-button class="md-raised" ng-click="removeGuest($event, guest)" ng-show="!hasCheckedOut()">X</md-button>
+            <div layout="row" ng-repeat="guest in reservation.guests">
+              <md-button class="md-raised anandcard" ng-click="updateGuest($event, guest)" ng-disabled="hasCheckedOut()">
+                {{guest.firstName}}
+                <div class="a-remove-container">
+                  <button ng-click="removeGuest($event, guest)" ng-show="!hasCheckedOut()" class="xbox">
+                    <md-icon md-svg-icon="close"></md-icon>
+                  </button>
+                </div>
+              </md-button>
             </div>
-            <md-button class="md-raised" ng-click="addGuest($event)" ng-show="!hasCheckedOut()">+</md-button>
+            <md-button class="md-raised md-fab md-mini" ng-click="addGuest($event)" ng-show="!hasCheckedOut()">+</md-button>
           </div>
           <div layout layout-sm="column">
             <p>Rooms</p>
             <div layout="row" ng-repeat="room in reservation.rooms" >
-              <md-button class="md-raised" ng-click="updateRoom($event)" ng-disabled="hasCheckedOut()">{{room.number}}</md-button>
-              <md-button class="md-raised" ng-click="removeRoom($event, room)" ng-show="!hasCheckedOut()">X</md-button>
+              <md-button class="md-raised" ng-click="updateRoom($event)" ng-disabled="hasCheckedOut()">
+                {{room.number}}
+                <div class="a-remove-container">
+                  <button ng-click="removeRoom($event, room)" ng-show="!hasCheckedOut()" class="xbox">
+                    <md-icon md-svg-icon="close"></md-icon>
+                  </button>
+                </div>
+              </md-button>
             </div>
-            <md-button class="md-raised" ng-click="selectRoom($event)" ng-show="!hasCheckedOut()">+</md-button>
+            <md-button class="md-raised md-fab md-mini" ng-click="selectRoom($event)" ng-show="!hasCheckedOut()">+</md-button>
           </div>
           <div layout="row">
             <md-input-container flex>
