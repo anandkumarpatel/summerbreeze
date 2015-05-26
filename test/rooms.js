@@ -74,14 +74,14 @@ describe('Rooms', function() {
         number: 2,
         smoking: true,
         beds: 2,
-        status: 'ok',
+        status: R.C.status.avalible,
         comment: 'upstairs'
       };
       var room10 = {
         number: 10,
         smoking: true,
         beds: 1,
-        status: 'okish',
+        status: R.C.status.dirty,
         comment: 'other'
       };
       beforeEach(createBasicRoom);
@@ -125,7 +125,7 @@ describe('Rooms', function() {
       });
       it('should get rooms from status', function(done) {
         getRoom({
-          status: 'ok'
+          status: R.C.status.avalible
         }, function(err, res, body) {
           if (err) {
             return done(err);
@@ -144,7 +144,7 @@ describe('Rooms', function() {
       });
       it('should get rooms that match status and rooms', function(done) {
         getRoom({
-          status: 'ok',
+          status: R.C.status.avalible,
           beds: 2
         }, function(err, res, body) {
           if (err) {
@@ -258,7 +258,7 @@ describe('Rooms', function() {
         'number': 421,
         'smoking': true,
         'beds': 5,
-        'status': 'cool',
+        'status': R.C.status.avalible,
         'comment': 'something'
       };
 

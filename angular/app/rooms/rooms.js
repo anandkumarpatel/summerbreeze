@@ -44,13 +44,13 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
     if($scope.isNew) {
       $scope.room = {};
     } else {
-      $scope.room = rooms.getById($routeParams.id)
-        .success(function(room) {
-          $scope.room = room[0];
-        })
-        .error(function(err) {
-          handleError(null, err);
-        });
+     rooms.getById($routeParams.id)
+      .success(function(room) {
+        $scope.room = room[0];
+      })
+      .error(function(err) {
+        handleError(null, err);
+      });
     }
 
     function validate(ev) {
@@ -176,31 +176,6 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
 .factory('rooms', ['$http', function($http) {
   var urlBase = 'http://localhost:8080/rooms/';
   var availabilityBase = 'http://localhost:8080/availability/';
-  var Rs = [{
-    number: 0,
-    smoking: false,
-    beds: 1,
-    status: 1,
-    comment: 'upstairs'
-  }, {
-    number: 1,
-    smoking: false,
-    beds: 1,
-    status: 2,
-    comment: 'upstairs'
-  }, {
-    number: 2,
-    smoking: true,
-    beds: 1,
-    status: 1,
-    comment: 'dirty'
-  }, {
-    number: 3,
-    smoking: true,
-    beds: 1,
-    status: 2,
-    comment: 'upstairs'
-  }];
 
   return {
     getAll: function() {
@@ -229,6 +204,31 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
     }
   };
 
+  // var Rs = [{
+  //   number: 0,
+  //   smoking: false,
+  //   beds: 1,
+  //   status: 1,
+  //   comment: 'upstairs'
+  // }, {
+  //   number: 1,
+  //   smoking: false,
+  //   beds: 1,
+  //   status: 2,
+  //   comment: 'upstairs'
+  // }, {
+  //   number: 2,
+  //   smoking: true,
+  //   beds: 1,
+  //   status: 1,
+  //   comment: 'dirty'
+  // }, {
+  //   number: 3,
+  //   smoking: true,
+  //   beds: 1,
+  //   status: 2,
+  //   comment: 'upstairs'
+  // }];
   //   return {
   //   getAll: function() {
   //     return $http.get(urlBase);

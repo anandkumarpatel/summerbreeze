@@ -11,7 +11,14 @@ angular.module('myApp.main', ['ngRoute'])
 }])
 .controller('Main1Ctrl', ['$scope','$location', '$mdDialog', 'reservations',
   function($scope, $location, $mdDialog, reservations) {
-    $scope.reservationList = reservations.getAll(); // getTodaysReservation();
+    reservations.getAll() // TODO: getTodaysReservation();
+      .success(function(reservations) {
+        $scope.reservationList = reservations;
+      })
+     .error(function(err) {
+        var message = err && err.stack || 'something went wrong';
+        $mdDialog.show($mdDialog.alert().title(message).ok('OK').targetEvent(null));
+      });
     $scope.kinds = [1,2,3,4];
     $scope.$location = $location;
     $scope.goRes = function (path) {

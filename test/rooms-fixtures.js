@@ -3,12 +3,13 @@ require('../lib/loadConfig.js');
 var expect = require('code').expect;
 var chance = require('chance').Chance();
 var request = require('request');
+var C = process.env.C_ROOM;
 
 var testRoom = {
   number: 1,
   smoking: false,
   beds: 1,
-  status: 'ok',
+  status: C.status.avalible,
   comment: 'upstairs'
 };
 
@@ -41,7 +42,7 @@ function createRandomRoom(number, cb) {
     number: number,
     smoking: chance.bool(),
     beds: chance.integer({min: 1, max: 2}),
-    status: 'ok',
+    status: chance.integer({min: 1, max: 2}),
     comment: chance.string()
   };
   postRoom(data, function(err, res, body) {
@@ -84,3 +85,4 @@ module.exports.createRandomRoom = createRandomRoom;
 module.exports.getRoom = getRoom;
 module.exports.deleteRoom = deleteRoom;
 module.exports.patchRoom = patchRoom;
+module.exports.C = C;

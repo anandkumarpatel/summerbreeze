@@ -16,7 +16,15 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
 
 .controller('ReservationsCtrl', ['$scope', '$location', '$window', 'reservations',
   function($scope, $location, $window, reservations) {
-    $scope.reservations = reservations.getAll();
+    reservations.getAll()
+      .success(function(reservations) {
+        $scope.reservations = reservations;
+      })
+     .error(function(err) {
+        var message = err && err.stack || 'something went wrong';
+        $mdDialog.show($mdDialog.alert().title(message).ok('OK').targetEvent(null));
+      });
+
     $scope.go = function (path) {
       $location.path('/reservations/'+path);
     };
@@ -35,7 +43,15 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
     $scope.isNewReservation = false;
 
     if ($routeParams.id) {
-      $scope.reservation = angular.copy(reservations.getById($routeParams.id));
+      reservations.getById($routeParams.id)
+        .success(function(reservation) {
+          reservation = reservation[0];
+          $scope.reservation = reservation;
+          setupInDate();
+        })
+        .error(function(err) {
+          handleError(null, err);
+        });
     } else {
       // if new set to array
       $scope.isNewReservation = true;
@@ -51,14 +67,32 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
         rooms: [],
         _id: Math.random()
       };
+      setupInDate();
+    }
+
+    function handleError (ev, res) {
+      if (!res.errors) { return; }
+
+      var message = '';
+      Object.keys(res.errors).forEach(function(item) {
+        message += 'item:'+res.errors[item].message+'\n';
+      });
+      $mdDialog.show(
+        $mdDialog.alert()
+          .title(res.message)
+          .content(message)
+          .ok('OK')
+          .targetEvent(ev)
+      );
     }
 
     var d_inMaxDate = $moment().startOf('day').add(10, 'year').subtract(1, 'day').format("YYYY-MM-DD");
     var d_outMinDate = $moment().startOf('day').add(1, 'day').format("YYYY-MM-DD");
-
-    $scope.inMinDate = $scope.isNewReservation ?
-      $moment().startOf('day').format("YYYY-MM-DD") :
-      $moment($scope.reservation.checkIn).startOf('day').format("YYYY-MM-DD");
+    function setupInDate () {
+      $scope.inMinDate = $scope.isNewReservation ?
+        $moment().startOf('day').format("YYYY-MM-DD") :
+        $moment($scope.reservation.checkIn).startOf('day').format("YYYY-MM-DD");
+    }
 
     $scope.inMaxDate = d_inMaxDate;
 
@@ -252,82 +286,116 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
     };
 }])
 
-.factory('reservations', ['guests', 'rooms', function(guests, rooms) {
-  var today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
-  var Rs = [{
-    checkIn: new Date('12/2/2015'),
-    checkOut: new Date('12/6/2015'),
-    rate: 123.123,
-    paymentType: 1,
-    status: 2,
-    roomsRequested: 2,
-    comment: 'late checking',
-    guests: [guests.getById(0), guests.getById(1)],
-    rooms: [rooms.getById(1), rooms.getById(0)],
-    _id: 0
-  }, {
-    checkIn: new Date('1/2/1989'),
-    checkOut: new Date('1/10/2016'),
-    rate: 111.21,
-    paymentType: 1,
-    status: 2,
-    roomsRequested: 1,
-    comment: 'asdf checking',
-    guests: [guests.getById(2)],
-    rooms: [rooms.getById(2)],
-    _id: 1
-  }, {
-    checkIn: new Date('1/1/1989'),
-    checkOut: angular.copy(today),
-    rate: 33.12,
-    paymentType: 1,
-    status: 2,
-    roomsRequested: 2,
-    comment: 'late adfs',
-    guests: [guests.getById(3)],
-    rooms: [rooms.getById(3)],
-    _id: 2
-  }, {
-    checkIn: angular.copy(today),
-    checkOut: new Date('1/9/2017'),
-    rate: 12.3,
-    paymentType: 1,
-    status: 1,
-    roomsRequested: 1,
-    comment: 'laasdfking',
-    guests: [guests.getById(0)],
-    rooms: [rooms.getById(3)],
-    _id: 3
-  }];
-
-  function updateState(reservation, newState) {
-      reservation.status = newState;
-      Rs[reservation._id].status = newState;
-  }
-
-  return {
+.factory('reservations', ['$http', function($http) {
+  var urlBase = 'http://localhost:8080/reservations/';
+  var out = {
     getAll: function() {
-      return Rs;
+      return $http.get(urlBase).success(function(reservations) {
+        reservations.forEach(function (reservation, i) {
+          reservations[i].checkIn = new Date(reservation.checkIn);
+          reservations[i].checkOut = new Date(reservation.checkOut);
+        })
+      });
     },
-    getById: function(_id) {
-      return Rs[_id];
+    getById: function(id) {
+      return $http.get(urlBase, { params: { _id: id }}).success(function(reservation) {
+          reservation = reservation[0];
+          reservation.checkIn = new Date(reservation.checkIn);
+          reservation.checkOut = new Date(reservation.checkOut);
+        });
     },
     create: function(data) {
-      Rs.push(data);
+      return $http.post(urlBase, data);
     },
     checkIn: function(reservation) {
-      updateState(reservation, 2);
+      reservation.status = 2;
+      return out.update(reservation);
     },
     checkOut: function(reservation) {
-      updateState(reservation, 3);
+      reservation.status = 3;
+      return out.update(reservation);
     },
     cancel: function(reservation) {
-      updateState(reservation, 4);
+      reservation.status = 4;
+      return out.update(reservation);
     },
     update: function(reservation) {
-      Rs[reservation._id] = reservation;
+      return $http.post(urlBase+reservation._id, reservation);
     }
   };
+  return out;
+  // function updateState(reservation, newState) {
+  //   reservation.status = newState;
+  //   Rs[reservation._id].status = newState;
+  // }
+  // var today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+  // var Rs = [{
+  //   checkIn: new Date('12/2/2015'),
+  //   checkOut: new Date('12/6/2015'),
+  //   rate: 123.123,
+  //   paymentType: 1,
+  //   status: 2,
+  //   roomsRequested: 2,
+  //   comment: 'late checking',
+  //   guests: [guests.getById.getById(0), guests.getById(1)],
+  //   rooms: [rooms.getById(1), rooms.getById(0)],
+  //   _id: 0
+  // }, {
+  //   checkIn: new Date('1/2/1989'),
+  //   checkOut: new Date('1/10/2016'),
+  //   rate: 111.21,
+  //   paymentType: 1,
+  //   status: 2,
+  //   roomsRequested: 1,
+  //   comment: 'asdf checking',
+  //   guests: [guests.getById(2)],
+  //   rooms: [rooms.getById(2)],
+  //   _id: 1
+  // }, {
+  //   checkIn: new Date('1/1/1989'),
+  //   checkOut: angular.copy(today),
+  //   rate: 33.12,
+  //   paymentType: 1,
+  //   status: 2,
+  //   roomsRequested: 2,
+  //   comment: 'late adfs',
+  //   guests: [guests.getById(3)],
+  //   rooms: [rooms.getById(3)],
+  //   _id: 2
+  // }, {
+  //   checkIn: angular.copy(today),
+  //   checkOut: new Date('1/9/2017'),
+  //   rate: 12.3,
+  //   paymentType: 1,
+  //   status: 1,
+  //   roomsRequested: 1,
+  //   comment: 'laasdfking',
+  //   guests: [guests.getById(0)],
+  //   rooms: [rooms.getById(3)],
+  //   _id: 3
+  // }];
+  // return {
+  //   getAll: function() {
+  //     return Rs;
+  //   },
+  //   getById: function(_id) {
+  //     return Rs[_id];
+  //   },
+  //   create: function(data) {
+  //     Rs.push(data);
+  //   },
+  //   checkIn: function(reservation) {
+  //     updateState(reservation, 2);
+  //   },
+  //   checkOut: function(reservation) {
+  //     updateState(reservation, 3);
+  //   },
+  //   cancel: function(reservation) {
+  //     updateState(reservation, 4);
+  //   },
+  //   update: function(reservation) {
+  //     Rs[reservation._id] = reservation;
+  //   }
 }])
 
 .filter('f_paymentType', function () {
