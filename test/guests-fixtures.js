@@ -50,8 +50,6 @@ function createRandomGuest (cb) {
     if (err) {
       return cb(err);
     }
-    // expect(res.statusCode).to.equal(200);
-    // expect(body).to.contain(guest);
     cb(null, body);
   });
 }

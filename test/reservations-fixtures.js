@@ -1,7 +1,10 @@
 'use strict';
 require('../lib/loadConfig.js');
+require('../lib/models/reservations/mongo-schema.js');
+
 var expect = require('code').expect;
 var request = require('request');
+var chance = require('chance').Chance();
 
 var C = process.env.C_RESERVATION;
 var testReservationLength = 5;
@@ -27,6 +30,32 @@ function stripeTime(date) {
 
 function addDays(date, days) {
   return new Date(date.getTime() + days*24*60*60*1000);
+}
+/**
+ * create relative room
+ * @param  {array} guests  guest array
+ * @param  {array} rooms   array of rooms
+ * @param  {int}   inDays  relative num days from today
+ * @param  {int}   outDays relative num days from today
+ * @param  {int}   status  reservation status
+ * @return {object}        data to post with room
+ */
+function genResData (guests, rooms, inDays, outDays, status) {
+  var today = stripeTime(new Date());
+  var out = {
+    checkIn: addDays(today, inDays).getTime(),
+    checkOut: addDays(today, outDays).getTime(),
+    guests: guests,
+    rate: chance.floating({min: 0, max: 100, fixed: 2}),
+    paymentType: chance.integer({min: 1, max: 2}),
+    status: status,
+    roomsRequested: rooms.length || rooms,
+    comment: chance.string({length: 10}),
+  };
+  if (rooms.length) {
+    out.rooms = rooms;
+  }
+  return out;
 }
 
 function expectReservationMatch(a,b) {
@@ -106,6 +135,7 @@ module.exports.createBasicReservation = createBasicReservation;
 module.exports.getReservation = getReservation;
 module.exports.deleteReservation = deleteReservation;
 module.exports.patchReservation = patchReservation;
+module.exports.genResData = genResData;
 
 module.exports.C = C;
 module.exports.testReservationLength = testReservationLength;
