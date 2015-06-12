@@ -1,5 +1,6 @@
 'use strict';
 require('../lib/loadConfig.js');
+require('../lib/models/rooms/mongo-schema.js');
 var expect = require('code').expect;
 var chance = require('chance').Chance();
 var request = require('request');
