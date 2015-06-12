@@ -13,9 +13,13 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
   });
 }])
 
-.controller('GuestsCtrl', ['$scope', '$location', '$window', 'guests',
-  function($scope, $location, $window, guests) {
-    $scope.guests = guests.getAll();
+.controller('GuestsCtrl', ['$scope', '$location', '$window', '$mdDialog', 'guests',
+  function($scope, $location, $window, $mdDialog, guests) {
+    guests.getAll()
+      .success(function(guests) {
+        $scope.guests = guests;
+      })
+     .error(handleError($mdDialog));
     $scope.go = function (path) {
       $location.path('/guests/'+path);
     };
@@ -27,7 +31,11 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
 .controller('GuestsIdCtrl',
   ['$scope', '$routeParams', '$window', '$mdDialog', 'guests',
   function($scope, $routeParams, $window, $mdDialog, guests) {
-    $scope.guest = angular.copy(guests.getById($routeParams.id));
+    guests.getById($routeParams.id)
+      .success(function(guest) {
+        $scope.guest = guest[0];
+      })
+      .error(handleError($mdDialog));
 
     function validate(ev) {
       if ($scope.guestForm.$valid) {
@@ -44,8 +52,11 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
         .cancel('go back')
         .targetEvent(ev);
         $mdDialog.show(confirm).then(function() {
-          guests.update($scope.guest);
-          $window.history.back();
+          guests.update($scope.guest)
+            .success(function(guests) {
+              $window.history.back();
+            })
+            .error(handleError($mdDialog));
         });
       }
     };
@@ -66,8 +77,12 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
 
     $scope.save = function() {
       if ($scope.guestForm.$valid) {
-        commitGuest($scope.guest);
-        $mdDialog.cancel();
+        guests.create($scope.guest)
+          .success(function(guests) {
+            commitGuest($scope.guest);
+            $mdDialog.cancel();
+          })
+          .error(handleError($mdDialog));
       }
     };
 
@@ -87,7 +102,11 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
 .controller('GuestsSearchCtrl',
   ['$scope', '$routeParams', '$location', '$mdDialog', 'guests', 'guest',
   function($scope, $routeParams, $location, $mdDialog, guests, guest) {
-    $scope.guests = guests.findByGuest(guest);
+    guests.findByGuest(guest)
+      .success(function(guests) {
+        $scope.guests = guests;
+      })
+      .error(handleError($mdDialog));
 
     $scope.select = function(guest) {
       if (angular.isDefined(guest)) {
@@ -100,53 +119,48 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
     };
 }])
 
-// TODO add State, City, Zip
-.factory('guests', function() {
-  var Gs = [{
-    _id: 0,
-    firstName: 'anand',
-    lastName: 'patel',
-    address: '1241 front beach road',
-    dateOfBirth: new Date('9/5/1989'),
-    idNumber: '474556356',
-    comment: 'other guy'
-  }, {
-    _id: 1,
-    firstName: 'other',
-    lastName: 'man',
-    address: '1241 plad',
-    dateOfBirth: new Date('05/10/1959'),
-    idNumber: '312342134',
-    comment: 'bad guy'
-  }, {
-    _id: 2,
-    firstName: 'who',
-    lastName: 'dat',
-    address: '42 front beach road',
-    dateOfBirth: new Date('05/11/2010'),
-    idNumber: '12341251',
-    comment: 'good guy'
-  }, {
-    _id: 3,
-    firstName: 'yo',
-    lastName: 'da',
-    address: '1241 asdf',
-    dateOfBirth: new Date('4/2/2000'),
-    idNumber: '1235125',
-    comment: 'test guy'
-  }];
+.factory('guests', ['$http', function($http) {
+  var urlBase = 'http://localhost:8080/guests/';
   return {
     getAll: function() {
-      return Gs;
+      return $http.get(urlBase).success(function(guests) {
+        guests.forEach(function (guest, i) {
+          guests[i].dateOfBirth = new Date(guest.dateOfBirth);
+        });
+      });    },
+    getById: function(id) {
+      return $http.get(urlBase, { params: { _id: id }}).success(function(guest) {
+        guest = guest[0];
+        guest.dateOfBirth = new Date(guest.dateOfBirth);
+      });
     },
     findByGuest: function(guest) {
-      return Gs;
-    },
-    getById: function(id) {
-      return Gs[id];
+      var or = [];
+      if (guest._id) { or.push({_id: guest._id}); }
+      if (guest.firstName) { or.push({firstName: guest.firstName}); }
+      if (guest.lastName) { or.push({lastName: guest.lastName}); }
+      if (guest.address) { or.push({address: guest.address}); }
+      if (guest.dateOfBirth) { or.push({dateOfBirth: guest.dateOfBirth}); }
+      if (guest.idNumber) { or.push({idNumber: guest.idNumber}); }
+      if (guest.comment) { or.push({comment: guest.comment}); }
+      return $http.get(urlBase, {
+        params: {
+          $or: or
+        }
+      });
     },
     update: function(guest) {
-      Gs[guest._id] = guest;
+      return $http.patch(urlBase+guest._id, guest);
+    },
+    create: function(guest) {
+      return $http.post(urlBase, guest);
     }
   };
-});
+}]);
+
+function handleError ($mdDialog) {
+  return function (err) {
+    var message = err && err.stack || 'something went wrong';
+    $mdDialog.show($mdDialog.alert().title(message).ok('OK').targetEvent(null));
+  };
+}

@@ -294,7 +294,7 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
         reservations.forEach(function (reservation, i) {
           reservations[i].checkIn = new Date(reservation.checkIn);
           reservations[i].checkOut = new Date(reservation.checkOut);
-        })
+        });
       });
     },
     getById: function(id) {
@@ -320,82 +320,10 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
       return out.update(reservation);
     },
     update: function(reservation) {
-      return $http.post(urlBase+reservation._id, reservation);
+      return $http.patch(urlBase+reservation._id, reservation);
     }
   };
   return out;
-  // function updateState(reservation, newState) {
-  //   reservation.status = newState;
-  //   Rs[reservation._id].status = newState;
-  // }
-  // var today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
-  // var Rs = [{
-  //   checkIn: new Date('12/2/2015'),
-  //   checkOut: new Date('12/6/2015'),
-  //   rate: 123.123,
-  //   paymentType: 1,
-  //   status: 2,
-  //   roomsRequested: 2,
-  //   comment: 'late checking',
-  //   guests: [guests.getById.getById(0), guests.getById(1)],
-  //   rooms: [rooms.getById(1), rooms.getById(0)],
-  //   _id: 0
-  // }, {
-  //   checkIn: new Date('1/2/1989'),
-  //   checkOut: new Date('1/10/2016'),
-  //   rate: 111.21,
-  //   paymentType: 1,
-  //   status: 2,
-  //   roomsRequested: 1,
-  //   comment: 'asdf checking',
-  //   guests: [guests.getById(2)],
-  //   rooms: [rooms.getById(2)],
-  //   _id: 1
-  // }, {
-  //   checkIn: new Date('1/1/1989'),
-  //   checkOut: angular.copy(today),
-  //   rate: 33.12,
-  //   paymentType: 1,
-  //   status: 2,
-  //   roomsRequested: 2,
-  //   comment: 'late adfs',
-  //   guests: [guests.getById(3)],
-  //   rooms: [rooms.getById(3)],
-  //   _id: 2
-  // }, {
-  //   checkIn: angular.copy(today),
-  //   checkOut: new Date('1/9/2017'),
-  //   rate: 12.3,
-  //   paymentType: 1,
-  //   status: 1,
-  //   roomsRequested: 1,
-  //   comment: 'laasdfking',
-  //   guests: [guests.getById(0)],
-  //   rooms: [rooms.getById(3)],
-  //   _id: 3
-  // }];
-  // return {
-  //   getAll: function() {
-  //     return Rs;
-  //   },
-  //   getById: function(_id) {
-  //     return Rs[_id];
-  //   },
-  //   create: function(data) {
-  //     Rs.push(data);
-  //   },
-  //   checkIn: function(reservation) {
-  //     updateState(reservation, 2);
-  //   },
-  //   checkOut: function(reservation) {
-  //     updateState(reservation, 3);
-  //   },
-  //   cancel: function(reservation) {
-  //     updateState(reservation, 4);
-  //   },
-  //   update: function(reservation) {
-  //     Rs[reservation._id] = reservation;
-  //   }
 }])
 
 .filter('f_paymentType', function () {

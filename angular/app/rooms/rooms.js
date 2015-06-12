@@ -197,55 +197,10 @@ angular.module('myApp.rooms', ['ngRoute', 'ngMaterial'])
       });
     },
     update: function(room) {
-      return $http.post(urlBase+room._id, room);
+      return $http.patch(urlBase+room._id, room);
     },
     create: function(data) {
       return $http.post(urlBase, data);
     }
   };
-
-  // var Rs = [{
-  //   number: 0,
-  //   smoking: false,
-  //   beds: 1,
-  //   status: 1,
-  //   comment: 'upstairs'
-  // }, {
-  //   number: 1,
-  //   smoking: false,
-  //   beds: 1,
-  //   status: 2,
-  //   comment: 'upstairs'
-  // }, {
-  //   number: 2,
-  //   smoking: true,
-  //   beds: 1,
-  //   status: 1,
-  //   comment: 'dirty'
-  // }, {
-  //   number: 3,
-  //   smoking: true,
-  //   beds: 1,
-  //   status: 2,
-  //   comment: 'upstairs'
-  // }];
-  //   return {
-  //   getAll: function() {
-  //     return $http.get(urlBase);
-  //   },
-  //   getAvailable: function(checkIn, checkOut) {
-  //     return Rs;
-  //   },
-  //   getById: function(number) {
-  //     return Rs[number];
-  //   },
-  //   update: function(data) {
-  //     return $http.post(urlBase, data);
-  //     Rs[data.number] = data;
-  //   },
-  //   create: function(data) {
-  //     return $http.post(urlBase, data);
-  //   }
-  // };
-
 }]);
