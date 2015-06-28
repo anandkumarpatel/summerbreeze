@@ -131,9 +131,8 @@ describe('Reservations', function() {
             if (err) { return done(err); }
             var data = R.getTestData();
             data.guests = [ctx.guest._id];
-            R.postReservation(data, function(err, res, body) {
+            R.postReservation(data, function(err, res) {
               expect(res.statusCode).to.equal(409);
-              expect(body.output.payload.message).to.equal('no more rooms avalible');
               Reservations.find({}, function(err, body) {
                 if (err) { return done(err); }
                 expect(body.length).to.equal(1);
