@@ -1,6 +1,7 @@
 'use strict';
 require('../lib/loadConfig.js');
 
+// api server must be started to use this script
 var async = require('async');
 var R = require('../test/rooms-fixtures.js');
 var Res = require('../test/reservations-fixtures.js');
