@@ -235,7 +235,7 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
         controller: 'GuestsNewCtrl',
         templateUrl: 'guests/dialog_edit.html',
         targetEvent: ev,
-        locals: { guest: {}, commitGuest: $scope.commitGuest},
+        locals: { guest: {}},
       });
     };
 
@@ -245,9 +245,6 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
         templateUrl: 'guests/dialog_edit.html',
         targetEvent: ev,
         locals: { guest: guest, commitGuest: $scope.commitGuest},
-      })
-      .then(function(guest) {
-        $scope.reservation.guests.push(guest);
       });
     };
 

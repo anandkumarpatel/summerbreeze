@@ -70,7 +70,8 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
   ['$scope', '$routeParams', '$location', '$mdDialog', 'guests', 'guest','commitGuest',
   function($scope, $routeParams, $location, $mdDialog, guests, guest, commitGuest) {
     $scope.isNewGuest = false;
-    if (!angular.isDefined($scope.guest)) {
+
+    if (!angular.isDefined(guest)) {
       $scope.guest = {};
       $scope.isNewGuest = true;
     } else {
@@ -89,7 +90,8 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
     $scope.save = function() {
       if ($scope.guestForm.$valid) {
         guests.create($scope.guest)
-          .success(function(guest) {
+          .success(function(_guest) {
+            angular.extend(guest, _guest);
             commitGuest(guest);
             $mdDialog.cancel();
           })
@@ -107,7 +109,7 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
         $mdDialog.show(confirm).then(function() {
           guests.update($scope.guest)
             .success(function() {
-              commitGuest($scope.guest);
+              angular.extend(guest, $scope.guest);
               $mdDialog.cancel();
             })
             .error(handleError($mdDialog));
