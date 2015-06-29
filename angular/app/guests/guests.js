@@ -37,15 +37,8 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
       })
       .error(handleError($mdDialog));
 
-    function validate(ev) {
-      if ($scope.guestForm.$valid) {
-        return true;
-      }
-      return false;
-    }
-
     $scope.update = function(ev) {
-      if (validate(ev)) {
+      if (validate($scope)) {
         var confirm = $mdDialog.confirm()
         .title('update guest?')
         .ok('yes')
@@ -67,40 +60,43 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
 }])
 
 .controller('GuestsNewCtrl',
-  ['$scope', '$routeParams', '$location', '$mdDialog', 'guests', 'guest','commitGuest',
-  function($scope, $routeParams, $location, $mdDialog, guests, guest, commitGuest) {
-    $scope.isNewGuest = false;
-
-    if (!angular.isDefined(guest)) {
-      $scope.guest = {};
-      $scope.isNewGuest = true;
-    } else {
-      $scope.guest = angular.copy(guest);
-    }
-
-
-    function validate(ev) {
-      if ($scope.guestForm.$valid) {
-        return true;
-      }
-      return false;
-    }
-
+  ['$scope', '$routeParams', '$location', '$mdDialog', 'guests','commitGuest',
+  function($scope, $routeParams, $location, $mdDialog, guests, commitGuest) {
+    $scope.guest = {};
+    $scope.isNewGuest = true;
 
     $scope.save = function() {
       if ($scope.guestForm.$valid) {
         guests.create($scope.guest)
-          .success(function(_guest) {
-            angular.extend(guest, _guest);
-            commitGuest(guest);
+          .success(function(guest) {
+            commitGuest.push(guest);
             $mdDialog.cancel();
           })
           .error(handleError($mdDialog));
       }
     };
 
+    $scope.search = function(ev) {
+      $mdDialog.show({
+        controller: 'GuestsSearchCtrl',
+        templateUrl: 'guests/dialog_list.html',
+        targetEvent: ev,
+        locals: { guest: $scope.guest},
+      }).then(function(guest) {
+        commitGuest.push(guest);
+        $mdDialog.cancel();
+      });
+    };
+}])
+
+.controller('GuestsUpdateCtrl',
+  ['$scope', '$routeParams', '$location', '$mdDialog', 'guests', 'guest',
+  function($scope, $routeParams, $location, $mdDialog, guests, guest) {
+    $scope.isNewGuest = false;
+    $scope.guest = angular.copy(guest);
+
     $scope.update = function(ev) {
-      if (validate(ev)) {
+      if (validate($scope)) {
         var confirm = $mdDialog.confirm()
         .title('update guest?')
         .ok('yes')
@@ -115,18 +111,6 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
             .error(handleError($mdDialog));
         });
       }
-    };
-
-    $scope.search = function(ev) {
-      $mdDialog.show({
-        controller: 'GuestsSearchCtrl',
-        templateUrl: 'guests/dialog_list.html',
-        targetEvent: ev,
-        locals: { guest: $scope.guest},
-      }).then(function(guest) {
-        commitGuest(guest);
-        $mdDialog.cancel();
-      });
     };
 }])
 
@@ -202,4 +186,11 @@ function handleError ($mdDialog) {
     var message = err && err.stack || 'something went wrong';
     $mdDialog.show($mdDialog.alert().title(message).ok('OK').targetEvent(null));
   };
+}
+
+function validate($scope) {
+  if ($scope.guestForm.$valid) {
+    return true;
+  }
+  return false;
 }

@@ -225,25 +225,21 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
       {label: 'cash', value: 1},
       {label: 'credit', value: 2}];
 
-    $scope.commitGuest = function (guest) {
-      $scope.reservation.guests.push(guest);
-    };
-
     $scope.addGuest = function(ev) {
       $mdDialog.show({
         controller: 'GuestsNewCtrl',
         templateUrl: 'guests/dialog_edit.html',
         targetEvent: ev,
-        locals: { guest: {}},
+        locals: { commitGuest: $scope.reservation.guests},
       });
     };
 
     $scope.updateGuest = function(ev, guest) {
       $mdDialog.show({
-        controller: 'GuestsNewCtrl',
+        controller: 'GuestsUpdateCtrl',
         templateUrl: 'guests/dialog_edit.html',
         targetEvent: ev,
-        locals: { guest: guest, commitGuest: $scope.commitGuest},
+        locals: { guest: guest },
       });
     };
 
