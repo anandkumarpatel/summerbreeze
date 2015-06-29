@@ -89,8 +89,8 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
     $scope.save = function() {
       if ($scope.guestForm.$valid) {
         guests.create($scope.guest)
-          .success(function(guests) {
-            commitGuest($scope.guest);
+          .success(function(guest) {
+            commitGuest(guest);
             $mdDialog.cancel();
           })
           .error(handleError($mdDialog));
@@ -99,7 +99,6 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
 
     $scope.update = function(ev) {
       if (validate(ev)) {
-        guest = $scope.guest;
         var confirm = $mdDialog.confirm()
         .title('update guest?')
         .ok('yes')
@@ -107,7 +106,7 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
         .targetEvent(ev);
         $mdDialog.show(confirm).then(function() {
           guests.update($scope.guest)
-            .success(function(guests) {
+            .success(function() {
               commitGuest($scope.guest);
               $mdDialog.cancel();
             })
