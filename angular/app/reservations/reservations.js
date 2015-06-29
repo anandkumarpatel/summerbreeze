@@ -14,8 +14,8 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
   }).otherwise({redirectTo: '/main'});
 }])
 
-.controller('ReservationsCtrl', ['$scope', '$location', '$window', 'reservations',
-  function($scope, $location, $window, reservations) {
+.controller('ReservationsCtrl', ['$scope', '$location', '$window', '$mdDialog', 'reservations',
+  function($scope, $location, $window, $mdDialog, reservations) {
     reservations.getAll()
       .success(function(reservations) {
         $scope.reservations = reservations;
@@ -34,41 +34,45 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
 }])
 // use this for both new and edit
 .controller('ReservationCtrl',
-  ['$scope', '$routeParams', '$location', '$mdDialog', '$window', '$moment', 'reservations',
-  function($scope, $routeParams, $location, $mdDialog, $window, $moment, reservations) {
+  ['$scope', '$routeParams', '$location', '$mdDialog', '$window', '$moment', 'reservations', 'settings',
+  function($scope, $routeParams, $location, $mdDialog, $window, $moment, reservations, settings) {
     $scope.goBack = function() {
       $window.history.back();
     };
+    $scope.setting = {};
 
     $scope.isNewReservation = false;
-
-    if ($routeParams.id) {
-      reservations.getById($routeParams.id)
-        .success(function(reservation) {
-          reservation = reservation[0];
-          $scope.reservation = reservation;
-          setupInDate();
-        })
-        .error(function(err) {
-          handleError(null, err);
-        });
-    } else {
-      // if new set to array
-      $scope.isNewReservation = true;
-      $scope.reservation = {
-        checkIn: new Date($moment().startOf('day').valueOf()),
-        checkOut: null,
-        rate: 0,
-        paymentType: 1,
-        status: 1,
-        roomsRequested: 0,
-        comment: '',
-        guests: [],
-        rooms: [],
-        _id: Math.random()
-      };
-      setupInDate();
-    }
+    settings.get().success(function(setting) {
+      if ($routeParams.id) {
+        reservations.getById($routeParams.id)
+          .success(function(reservation) {
+            reservation = reservation[0];
+            $scope.reservation = reservation;
+            $scope.reservation.taxRate = setting.taxRate;
+            setupInDate();
+          })
+          .error(function(err) {
+            handleError(null, err);
+          });
+      } else {
+        // if new set to array
+        $scope.isNewReservation = true;
+        $scope.reservation = {
+          checkIn: new Date($moment().startOf('day').valueOf()),
+          checkOut: null,
+          rate: 0,
+          taxRate: setting.taxRate,
+          paymentType: 1,
+          status: 1,
+          roomsRequested: 0,
+          comment: '',
+          guests: [],
+          rooms: [],
+          _id: Math.random()
+        };
+        setupInDate();
+      }
+    });
 
     function handleError (ev, res) {
       if (!res.errors) { return; }
@@ -136,14 +140,14 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
     $scope.update = function(ev) {
       if (validate(ev)) {
         var confirm = $mdDialog.confirm()
-        .title('update reservation?')
-        .ok(' yes ')
-        .cancel('back')
-        .targetEvent(ev);
-        $mdDialog.show(confirm).then(function() {
-          reservations.update(angular.copy($scope.reservation));
-          $scope.goBack();
-        });
+          .title('update reservation?')
+          .ok(' yes ')
+          .cancel('back')
+          .targetEvent(ev);
+          $mdDialog.show(confirm).then(function() {
+            reservations.update($scope.reservation);
+            $scope.goBack();
+          });
       }
     };
 
@@ -182,7 +186,7 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
 
     $scope.create = function(ev) {
       if (validate(ev)) {
-        reservations.create(angular.copy($scope.reservation));
+        reservations.create($scope.reservation);
         $location.path('/main');
       }
     };
@@ -305,7 +309,10 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
         });
     },
     create: function(data) {
-      return $http.post(urlBase, data);
+      var out = angular.copy(data);
+      out.checkIn = out.checkIn.getTime();
+      out.checkOut = out.checkOut.getTime();
+      return $http.post(urlBase, out);
     },
     checkIn: function(reservation) {
       reservation.status = 2;
@@ -320,7 +327,10 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
       return out.update(reservation);
     },
     update: function(reservation) {
-      return $http.patch(urlBase+reservation._id, reservation);
+      var out = angular.copy(reservation);
+      out.checkIn = out.checkIn.getTime();
+      out.checkOut = out.checkOut.getTime();
+      return $http.patch(urlBase+reservation._id, out);
     }
   };
   return out;
