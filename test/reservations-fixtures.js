@@ -9,11 +9,13 @@ var chance = require('chance').Chance();
 var C = process.env.C_RESERVATION;
 var testReservationLength = 5;
 var testRate = 123.41;
+var testTaxRate = 12.52;
 
 var testReservationData = {
   checkIn: stripeTime(new Date()).getTime(),
   checkOut: stripeTime(addDays(new Date(), testReservationLength)).getTime(),
   rate: testRate,
+  taxRate: testTaxRate,
   paymentType: C.paymentType.cash,
   status: C.status.notIn,
   roomsRequested: 1,
@@ -47,6 +49,7 @@ function genResData (guests, rooms, inDays, outDays, status) {
     checkOut: addDays(today, outDays).getTime(),
     guests: guests,
     rate: chance.floating({min: 0, max: 100, fixed: 2}),
+    taxRate: chance.floating({min: 0, max: 10, fixed: 2}),
     paymentType: chance.integer({min: 1, max: 2}),
     status: status,
     roomsRequested: rooms.length || rooms,
@@ -63,6 +66,7 @@ function expectReservationMatch(a,b) {
   expect(a.checkOut).to.equal(b.checkOut);
   expect(a.roomsRequested).to.equal(b.roomsRequested);
   expect(a.rate).to.equal(b.rate);
+  expect(a.taxRate).to.equal(b.taxRate);
   expect(a.paymentType).to.equal(b.paymentType);
   expect(a.status).to.equal(b.status);
   expect(a.comment).to.equal(b.comment);
@@ -140,4 +144,5 @@ module.exports.genResData = genResData;
 module.exports.C = C;
 module.exports.testReservationLength = testReservationLength;
 module.exports.testRate = testRate;
+module.exports.testTaxRate = testTaxRate;
 module.exports.getTestData = getTestData;

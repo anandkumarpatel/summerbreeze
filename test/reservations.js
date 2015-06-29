@@ -61,7 +61,7 @@ describe('Reservations', function() {
     }); // valid
     describe('invalid', function() {
       describe('missing keys', function() {
-        ['checkIn', 'checkOut', 'rate', 'paymentType', 'status', 'roomsRequested']
+        ['checkIn', 'checkOut', 'rate', 'taxRate', 'paymentType', 'status', 'roomsRequested']
           .forEach(function(key) {
           it('should error if missing ' + key, function(done) {
             var info = R.getTestData();
@@ -198,6 +198,7 @@ describe('Reservations', function() {
         checkIn: R.stripeTime(new Date()).getTime(),
         checkOut: R.stripeTime(R.addDays(new Date(), R.testReservationLength)).getTime(),
         rate: R.testRate,
+        taxRate: R.testTaxRate,
         paymentType: R.C.paymentType.creditCard,
         status: R.C.status.notIn,
         roomsRequested: 1,
@@ -207,6 +208,7 @@ describe('Reservations', function() {
         checkIn: R.stripeTime(R.addDays(new Date(), 1)).getTime(),
         checkOut: R.stripeTime(R.addDays(new Date(), 6)).getTime(),
         rate: R.testRate,
+        taxRate: R.testTaxRate,
         paymentType: R.C.paymentType.cash,
         status: R.C.status.canceled,
         roomsRequested: 1,
@@ -361,6 +363,7 @@ describe('Reservations', function() {
         'checkIn': new Date().getTime(),
         'checkOut': R.stripeTime(R.addDays(new Date(), 9)).getTime(),
         'rate': 5,
+        'taxRate': 1.2,
         'paymentType': R.C.paymentType.creditCard,
         'cardNumber': 2352463,
         'status': R.C.status.checkOut,
