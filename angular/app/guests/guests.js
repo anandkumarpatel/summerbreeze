@@ -69,11 +69,22 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
 .controller('GuestsNewCtrl',
   ['$scope', '$routeParams', '$location', '$mdDialog', 'guests', 'guest','commitGuest',
   function($scope, $routeParams, $location, $mdDialog, guests, guest, commitGuest) {
-    $scope.guest = guest;
-
+    $scope.isNewGuest = false;
     if (!angular.isDefined($scope.guest)) {
       $scope.guest = {};
+      $scope.isNewGuest = true;
+    } else {
+      $scope.guest = angular.copy(guest);
     }
+
+
+    function validate(ev) {
+      if ($scope.guestForm.$valid) {
+        return true;
+      }
+      return false;
+    }
+
 
     $scope.save = function() {
       if ($scope.guestForm.$valid) {
@@ -83,6 +94,25 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
             $mdDialog.cancel();
           })
           .error(handleError($mdDialog));
+      }
+    };
+
+    $scope.update = function(ev) {
+      if (validate(ev)) {
+        guest = $scope.guest;
+        var confirm = $mdDialog.confirm()
+        .title('update guest?')
+        .ok('yes')
+        .cancel('go back')
+        .targetEvent(ev);
+        $mdDialog.show(confirm).then(function() {
+          guests.update($scope.guest)
+            .success(function(guests) {
+              commitGuest($scope.guest);
+              $mdDialog.cancel();
+            })
+            .error(handleError($mdDialog));
+        });
       }
     };
 

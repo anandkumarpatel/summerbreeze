@@ -46,7 +46,8 @@
         </md-input-container>
         <div layout layout-sm="column">
           <md-button flex class="md-raised md-primary" ng-click="search($event)">find</md-button>
-          <md-button flex class="md-raised md-primary" ng-click="save()">SAVE</md-button>
+          <md-button flex class="md-raised md-primary" ng-click="save($event)" ng-show="isNewGuest">save</md-button>
+          <md-button flex class="md-raised md-primary" ng-click="update($event)" ng-show="!isNewGuest">update</md-button>
         </div>
       </div>
     </form>

@@ -66,8 +66,7 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
           roomsRequested: 0,
           comment: '',
           guests: [],
-          rooms: [],
-          _id: Math.random()
+          rooms: []
         };
         setupInDate();
       }
