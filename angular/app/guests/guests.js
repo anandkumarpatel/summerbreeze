@@ -32,8 +32,8 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
   ['$scope', '$routeParams', '$window', '$mdDialog', 'guests',
   function($scope, $routeParams, $window, $mdDialog, guests) {
     guests.getById($routeParams.id)
-      .success(function(guest) {
-        $scope.guest = guest[0];
+      .success(function(guests) {
+        $scope.guest = guests[0];
       })
       .error(handleError($mdDialog));
 
@@ -121,17 +121,25 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
 
 .factory('guests', ['$http', function($http) {
   var urlBase = 'http://localhost:8080/guests/';
+  function formatGuestOut (guest) {
+    var out = angular.copy(guest);
+    out.dateOfBirth = out.dateOfBirth.getTime();
+    return out;
+  }
+  function formatGuestsIn (guests) {
+    guests.forEach(function (guest, i) {
+      guests[i].dateOfBirth = new Date(guest.dateOfBirth);
+    });
+    return guests;
+  }
   return {
     getAll: function() {
       return $http.get(urlBase).success(function(guests) {
-        guests.forEach(function (guest, i) {
-          guests[i].dateOfBirth = new Date(guest.dateOfBirth);
-        });
+        formatGuestsIn(guests);
       });    },
     getById: function(id) {
-      return $http.get(urlBase, { params: { _id: id }}).success(function(guest) {
-        guest = guest[0];
-        guest.dateOfBirth = new Date(guest.dateOfBirth);
+      return $http.get(urlBase, { params: { _id: id }}).success(function(guests) {
+        formatGuestsIn(guests);
       });
     },
     findByGuest: function(guest) {
@@ -140,7 +148,7 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
       if (guest.firstName) { or.push({firstName: guest.firstName}); }
       if (guest.lastName) { or.push({lastName: guest.lastName}); }
       if (guest.address) { or.push({address: guest.address}); }
-      if (guest.dateOfBirth) { or.push({dateOfBirth: guest.dateOfBirth}); }
+      if (guest.dateOfBirth) { or.push({dateOfBirth: guest.dateOfBirth.getTime()}); }
       if (guest.idNumber) { or.push({idNumber: guest.idNumber}); }
       if (guest.comment) { or.push({comment: guest.comment}); }
       return $http.get(urlBase, {
@@ -150,10 +158,10 @@ angular.module('myApp.guests', ['ngRoute', 'ngMaterial'])
       });
     },
     update: function(guest) {
-      return $http.patch(urlBase+guest._id, guest);
+      return $http.patch(urlBase+guest._id, formatGuestOut(guest));
     },
     create: function(guest) {
-      return $http.post(urlBase, guest);
+      return $http.post(urlBase, formatGuestOut(guest));
     }
   };
 }]);

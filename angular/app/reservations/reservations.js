@@ -45,9 +45,8 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
     settings.get().success(function(setting) {
       if ($routeParams.id) {
         reservations.getById($routeParams.id)
-          .success(function(reservation) {
-            reservation = reservation[0];
-            $scope.reservation = reservation;
+          .success(function(reservations) {
+            $scope.reservation = reservations[0];
             $scope.reservation.taxRate = setting.taxRate;
             setupInDate();
           })
@@ -307,6 +306,9 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
     reservations.forEach(function (reservation, i) {
       reservations[i].checkIn = new Date(reservation.checkIn);
       reservations[i].checkOut = new Date(reservation.checkOut);
+      reservations[i].guests.forEach(function (guest) {
+        guest.dateOfBirth = new Date(guest.dateOfBirth);
+      });
     });
     return reservations;
   }
