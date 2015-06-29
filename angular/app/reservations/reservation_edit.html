@@ -36,7 +36,7 @@
             </md-input-container>
             <div layout="column">
               <label>Total Stay:</label>
-              <label>{{reservation.rate * reservation.roomsRequested * daysStaying | currency:"$"}}</label>
+              <label>{{reservation.rate * reservation.roomsRequested * daysStaying * (reservation.taxRate / 100)| currency:"$"}}</label>
             </div>
           </div>
           <div layout layout-sm="column">

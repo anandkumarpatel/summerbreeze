@@ -47,7 +47,6 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
         reservations.getById($routeParams.id)
           .success(function(reservations) {
             $scope.reservation = reservations[0];
-            $scope.reservation.taxRate = setting.taxRate;
             setupInDate();
           })
           .error(function(err) {
