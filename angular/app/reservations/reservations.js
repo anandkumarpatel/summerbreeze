@@ -292,27 +292,37 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
 
 .factory('reservations', ['$http', function($http) {
   var urlBase = 'http://localhost:8080/reservations/';
+  function formatReservationOut (reservation) {
+    var out = angular.copy(reservation);
+    out.checkIn = out.checkIn.getTime();
+    out.checkOut = out.checkOut.getTime();
+    function getId (item) {
+      return item._id;
+    }
+    out.rooms = out.rooms.map(getId);
+    out.guests = out.guests.map(getId);
+    return out;
+  }
+  function formatReservationsIn (reservations) {
+    reservations.forEach(function (reservation, i) {
+      reservations[i].checkIn = new Date(reservation.checkIn);
+      reservations[i].checkOut = new Date(reservation.checkOut);
+    });
+    return reservations;
+  }
   var out = {
     getAll: function() {
       return $http.get(urlBase).success(function(reservations) {
-        reservations.forEach(function (reservation, i) {
-          reservations[i].checkIn = new Date(reservation.checkIn);
-          reservations[i].checkOut = new Date(reservation.checkOut);
-        });
+        formatReservationsIn(reservations);
       });
     },
     getById: function(id) {
       return $http.get(urlBase, { params: { _id: id }}).success(function(reservation) {
-          reservation = reservation[0];
-          reservation.checkIn = new Date(reservation.checkIn);
-          reservation.checkOut = new Date(reservation.checkOut);
-        });
+        formatReservationsIn(reservation);
+      });
     },
-    create: function(data) {
-      var out = angular.copy(data);
-      out.checkIn = out.checkIn.getTime();
-      out.checkOut = out.checkOut.getTime();
-      return $http.post(urlBase, out);
+    create: function(reservation) {
+      return $http.post(urlBase, formatReservationOut(reservation));
     },
     checkIn: function(reservation) {
       reservation.status = 2;
@@ -327,10 +337,7 @@ angular.module('myApp.reservations', ['ngRoute', 'angular-momentjs'])
       return out.update(reservation);
     },
     update: function(reservation) {
-      var out = angular.copy(reservation);
-      out.checkIn = out.checkIn.getTime();
-      out.checkOut = out.checkOut.getTime();
-      return $http.patch(urlBase+reservation._id, out);
+      return $http.patch(urlBase+reservation._id, formatReservationOut(reservation));
     }
   };
   return out;
