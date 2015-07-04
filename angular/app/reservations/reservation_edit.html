@@ -10,21 +10,21 @@
 </div>
 
 <div layout="row">
-  <div flex="10" flex-sm="0"></div>
+  <div flex="30" flex-sm="0"></div>
   <md-card flex>
     <md-content class="md-padding">
       <form novalidate name="reservationForm">
         <div ng-if="reservation" layout="column">
+          <md-input-container flex>
+            <label>Check In Date</label>
+            <input type="date" ng-model="reservation.checkIn" min="{{inMinDate}}" max="{{inMaxDate}}" ng-change="inDateChange()" required ng-disabled="hasCheckedIn()">
+          </md-input-container>
           <div layout layout-sm="column">
-            <md-input-container flex>
-              <label>Check In Date</label>
-              <input type="date" ng-model="reservation.checkIn" min="{{inMinDate}}" max="{{inMaxDate}}" ng-change="inDateChange()" required ng-disabled="hasCheckedIn()">
-            </md-input-container>
-            <md-input-container flex>
-              <label>Check Out Date</label>
-              <input type="date" ng-model="reservation.checkOut"  min="{{outMinDate}}" max="{{outMaxDate}}" ng-change="outDateChange()" required ng-disabled="hasCheckedOut()">
-            </md-input-container>
           </div>
+          <md-input-container flex>
+            <label>Check Out Date</label>
+            <input type="date" ng-model="reservation.checkOut"  min="{{outMinDate}}" max="{{outMaxDate}}" ng-change="outDateChange()" required ng-disabled="hasCheckedOut()">
+          </md-input-container>
           <div layout layout-sm="column">
             <md-input-container>
               <label>Rate Per Night</label>
@@ -53,31 +53,31 @@
           </div>
           <div layout layout-sm="column">
             <p>Guest:</p>
-            <div layout="row" ng-repeat="guest in reservation.guests">
-              <md-button class="md-raised anandcard" ng-click="updateGuest($event, guest)" ng-disabled="hasCheckedOut()">
-                {{guest.firstName}}
-                <div class="a-remove-container">
-                  <button ng-click="removeGuest($event, guest)" ng-show="!hasCheckedOut()" class="xbox">
-                    <md-icon md-svg-icon="close"></md-icon>
-                  </button>
-                </div>
-              </md-button>
-            </div>
-            <md-button class="md-raised md-fab md-mini" ng-click="addGuest($event)" ng-show="!hasCheckedOut()">+</md-button>
+            <md-chips class="custom-chips" ng-model="reservation.guests" readonly="true">
+              <md-chip-template>
+                <span>
+                  <strong>{{$chip.firstName}}</strong>
+                </span>
+              </md-chip-template>
+              <button md-chip-remove class="md-primary vegetablechip">
+                <md-icon md-svg-icon="md-close"></md-icon>
+              </button>
+            </md-chips>
+            <md-button class="md-raised" ng-click="addGuest($event)" ng-show="!hasCheckedOut()">ADD GUEST</md-button>
           </div>
           <div layout layout-sm="column">
             <p>Rooms</p>
-            <div layout="row" ng-repeat="room in reservation.rooms" >
-              <md-button class="md-raised" ng-click="updateRoom($event)" ng-disabled="hasCheckedOut()">
-                {{room.number}}
-                <div class="a-remove-container">
-                  <button ng-click="removeRoom($event, room)" ng-show="!hasCheckedOut()" class="xbox">
-                    <md-icon md-svg-icon="close"></md-icon>
-                  </button>
-                </div>
-              </md-button>
-            </div>
-            <md-button class="md-raised md-fab md-mini" ng-click="selectRoom($event)" ng-show="!hasCheckedOut()">+</md-button>
+            <md-chips class="custom-chips" ng-model="reservation.rooms" readonly="true">
+              <md-chip-template>
+                <span>
+                  <strong>{{$chip.number}}</strong>
+                </span>
+              </md-chip-template>
+              <button md-chip-remove class="md-primary vegetablechip">
+                <md-icon md-svg-icon="md-close"></md-icon>
+              </button>
+            </md-chips>
+            <md-button class="md-raised" ng-click="addGuest($event)" ng-show="!hasCheckedOut()">ADD ROOM</md-button>
           </div>
           <div layout="row">
             <md-input-container flex>
@@ -85,17 +85,15 @@
               <input ng-model="reservation.comment">
             </md-input-container >
           </div>
-          <div layout="row">
-            <md-button class="md-raised md-primary" ng-show="isNewReservation" ng-click="create($event)" flex>create</md-button>
-            <md-button class="md-raised md-primary" ng-show="!isNewReservation && !hasCheckedOut()" ng-click="update($event)" flex>update</md-button>
-            <md-button class="md-raised md-primary" ng-show="isChecking()" ng-click="checkIn($event)" flex>Check In</md-button>
-            <md-button class="md-raised md-primary" ng-show="isCheckout()" ng-click="checkOut($event)" flex>Check Out</md-button>
-            <md-button class="md-raised" ng-click="cancel($event)" ng-show="!isNewReservation && !hasCheckedOut()" flex="20">cancel</md-button>
-            <md-button class="md-raised" ng-click="goBack()" flex="hasCheckedOut() ? 100 : 20">back</md-button>
-          </div>
+          <md-button class="md-raised md-primary" ng-show="isNewReservation" ng-click="create($event)">create</md-button>
+          <md-button class="md-raised md-primary" ng-show="!isNewReservation && !hasCheckedOut()" ng-click="update($event)">update</md-button>
+          <md-button class="md-raised md-primary" ng-show="isChecking()" ng-click="checkIn($event)">Check In</md-button>
+          <md-button class="md-raised md-primary" ng-show="isCheckout()" ng-click="checkOut($event)">Check Out</md-button>
+          <md-button class="md-raised md-error" ng-click="cancel($event)" ng-show="!isNewReservation && !hasCheckedOut()">cancel</md-button>
+          <md-button class="md-raised" ng-click="goBack()">back</md-button>
         </div>
       </form>
     </md-content>
   </md-card>
-  <div flex="10"flex-sm="0"></div>
+  <div flex="30"flex-sm="0"></div>
 </div>

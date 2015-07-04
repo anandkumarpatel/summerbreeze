@@ -23,7 +23,7 @@ function logIfErr (save, cb) {
 }
 async.series([
   function createRooms (cb) {
-    var num = 30;
+    var num = 17;
     var count = createCount(num, cb);
     for (var i = 0; i < num; i++) {
       R.createRandomRoom(i, logIfErr(rooms, count.next));
