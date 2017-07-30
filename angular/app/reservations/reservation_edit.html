@@ -19,38 +19,51 @@
             <label>Check In Date</label>
             <input type="date" ng-model="reservation.checkIn" min="{{inMinDate}}" max="{{inMaxDate}}" ng-change="inDateChange()" required ng-disabled="hasCheckedIn()">
           </md-input-container>
-          <div layout layout-sm="column">
-          </div>
+
           <md-input-container flex>
             <label>Check Out Date</label>
             <input type="date" ng-model="reservation.checkOut"  min="{{outMinDate}}" max="{{outMaxDate}}" ng-change="outDateChange()" required ng-disabled="hasCheckedOut()">
           </md-input-container>
+
           <div layout layout-sm="column">
             <md-input-container>
               <label>Rate Per Night</label>
               <input type="number" min="0" max="500" ng-model="reservation.rate" required ng-disabled="hasCheckedOut()">
             </md-input-container>
+
             <md-input-container>
               <label>Tax Rate</label>
               <input type="number" min="0" max="100" ng-model="reservation.taxRate" required ng-disabled="hasCheckedOut()">
             </md-input-container>
+
             <div layout="column">
               <label>Total Stay:</label>
               <label>{{reservation.rate * reservation.roomsRequested * daysStaying * (reservation.taxRate / 100)| currency:"$"}}</label>
             </div>
           </div>
-          <div layout layout-sm="column">
-            <md-radio-group ng-model="reservation.paymentType" required>
-              <label>Payment Type</label>
-                <div layout layout-sm="column">
-                  <md-radio-button ng-repeat="type in paymentTypes"
-                                   ng-value="type.value"
-                                   ng-disabled="hasCheckedOut()">
-                      {{ type.label }}
-                  </md-radio-button>
-                </div>
-            </md-radio-group>
+
+          <div flex>
+            <p>Payments:</p>
+            <div ng-repeat="paymentItem in reservation.payments" layout="row">
+              <md-input-container>
+                <label>Payment Type</label>
+                <input type="text" ng-model="paymentItem.paymentType" required ng-disabled="hasCheckedOut()">
+              </md-input-container>
+              <md-input-container>
+                <label>Amount</label>
+                <input type="number" ng-model="paymentItem.amount" ng-change="paymentAmountChanged()" required ng-disabled="hasCheckedOut()">
+              </md-input-container>
+              <button ng-click="removePayment($event, paymentItem)">
+                <md-icon md-svg-icon="md-close"></md-icon>
+              </button>
+            </div>
+            <md-button class="md-raised" ng-click="addPayment($event)" ng-show="!hasCheckedOut()">ADD Payment</md-button>
           </div>
+
+          <div>
+            <label>Balance: {{ reservation.balance }}</label>
+          </div>
+
           <div layout layout-sm="column">
             <p>Guest:</p>
             <md-chips class="custom-chips" ng-model="reservation.guests" readonly="true">
@@ -59,7 +72,7 @@
                   <strong>{{$chip.firstName}}</strong>
                 </span>
               </md-chip-template>
-              <button md-chip-remove class="md-primary vegetablechip">
+              <button md-chip-remove class="md-primary vegetablechip" ng-show="!hasCheckedOut()">
                 <md-icon md-svg-icon="md-close"></md-icon>
               </button>
             </md-chips>
@@ -73,7 +86,7 @@
                   <strong>{{$chip.number}}</strong>
                 </span>
               </md-chip-template>
-              <button md-chip-remove class="md-primary vegetablechip">
+              <button md-chip-remove class="md-primary vegetablechip" ng-show="!hasCheckedOut()">
                 <md-icon md-svg-icon="md-close"></md-icon>
               </button>
             </md-chips>
